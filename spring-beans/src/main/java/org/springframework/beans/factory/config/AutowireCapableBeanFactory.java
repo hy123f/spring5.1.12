@@ -47,12 +47,15 @@ import org.springframework.lang.Nullable;
  * from an application context too, accessible through ApplicationContext's
  * {@link org.springframework.context.ApplicationContext#getAutowireCapableBeanFactory()}
  * method.
- *
+ * 对于想要拥有自动装配能力，并且想把这种能力暴露给外部应用的BeanFactory类需要实现此接口。 
+*正常情况下，不要使用此接口，应该更倾向于使用BeanFactory或者ListableBeanFactory接口。此接口主要是针对框架之外，没有向Spring托管Bean的应用。通过暴露此功能，Spring框架之外的程序，具有自动装配等Spring的功能。 
+*需要注意的是，ApplicationContext接口并没有实现此接口，因为应用代码很少用到此功能，如果确实需要的话，可以调用ApplicationContext的getAutowireCapableBeanFactory方法，来获取此接口的实例。 
+*如果一个类实现了此接口，那么很大程度上它还需要实现BeanFactoryAware接口。它可以在应用上下文中返回BeanFactory。
  * <p>You may also implement the {@link org.springframework.beans.factory.BeanFactoryAware}
  * interface, which exposes the internal BeanFactory even when running in an
  * ApplicationContext, to get access to an AutowireCapableBeanFactory:
  * simply cast the passed-in BeanFactory to AutowireCapableBeanFactory.
- *
+ * 
  * @author Juergen Hoeller
  * @since 04.12.2003
  * @see org.springframework.beans.factory.BeanFactoryAware
@@ -64,7 +67,7 @@ public interface AutowireCapableBeanFactory extends BeanFactory {
 	/**
 	 * Constant that indicates no externally defined autowiring. Note that
 	 * BeanFactoryAware etc and annotation-driven injection will still be applied.
-	 * @see #createBean
+	 * @see #createBean常量，用于标识外部自动装配功能是否可用。但是此标识不影响正常的（基于注解的等）自动装配功能的使用
 	 * @see #autowire
 	 * @see #autowireBeanProperties
 	 */
@@ -73,7 +76,7 @@ public interface AutowireCapableBeanFactory extends BeanFactory {
 	/**
 	 * Constant that indicates autowiring bean properties by name
 	 * (applying to all bean property setters).
-	 * @see #createBean
+	 * @see #createBean标识按名装配的常量
 	 * @see #autowire
 	 * @see #autowireBeanProperties
 	 */
@@ -82,7 +85,7 @@ public interface AutowireCapableBeanFactory extends BeanFactory {
 	/**
 	 * Constant that indicates autowiring bean properties by type
 	 * (applying to all bean property setters).
-	 * @see #createBean
+	 * @see #createBean标识按类型自动装配的常量
 	 * @see #autowire
 	 * @see #autowireBeanProperties
 	 */
@@ -91,7 +94,7 @@ public interface AutowireCapableBeanFactory extends BeanFactory {
 	/**
 	 * Constant that indicates autowiring the greediest constructor that
 	 * can be satisfied (involves resolving the appropriate constructor).
-	 * @see #createBean
+	 * @see #createBean 标识按照贪婪策略匹配出的最符合的构造方法来自动装配的常量
 	 * @see #autowire
 	 */
 	int AUTOWIRE_CONSTRUCTOR = 3;
@@ -99,7 +102,7 @@ public interface AutowireCapableBeanFactory extends BeanFactory {
 	/**
 	 * Constant that indicates determining an appropriate autowire strategy
 	 * through introspection of the bean class.
-	 * @see #createBean
+	 * @see #createBean  标识自动识别一种装配策略来实现自动装配的常量
 	 * @see #autowire
 	 * @deprecated as of Spring 3.0: If you are using mixed autowiring strategies,
 	 * prefer annotation-based autowiring for clearer demarcation of autowiring needs.

@@ -145,7 +145,7 @@ public class AnnotationConfigApplicationContext extends GenericApplicationContex
 	// Implementation of AnnotationConfigRegistry
 	//---------------------------------------------------------------------
 
-	/**
+	/**注册一个或多个要处理的组件类。
 	 * Register one or more component classes to be processed.
 	 * <p>Note that {@link #refresh()} must be called in order for the context
 	 * to fully process the new classes.

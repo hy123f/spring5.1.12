@@ -26,7 +26,7 @@ import java.util.Set;
  * @author Mark Fisher
  * @author Phillip Webb
  * @author Sam Brannen
- * @since 2.5
+ * @since 2.5 元注解：相当于父类，某些注解是在元注解的基础上扩展出来的，典型的注解是@Component，@Service、@Controller扩展了@Component注解 
  * @see StandardAnnotationMetadata
  * @see org.springframework.core.type.classreading.MetadataReader#getAnnotationMetadata()
  * @see AnnotatedTypeMetadata
@@ -36,7 +36,7 @@ public interface AnnotationMetadata extends ClassMetadata, AnnotatedTypeMetadata
 	/**
 	 * Get the fully qualified class names of all annotation types that
 	 * are <em>present</em> on the underlying class.
-	 * @return the annotation type names
+	 * @return the annotation type names返回注解的类全限定名
 	 */
 	Set<String> getAnnotationTypes();
 
@@ -44,7 +44,7 @@ public interface AnnotationMetadata extends ClassMetadata, AnnotatedTypeMetadata
 	 * Get the fully qualified class names of all meta-annotation types that
 	 * are <em>present</em> on the given annotation type on the underlying class.
 	 * @param annotationName the fully qualified class name of the meta-annotation
-	 * type to look for
+	 * type to look for获得annottationName对应的元注解的类全限定名
 	 * @return the meta-annotation type names, or an empty set if none found
 	 */
 	Set<String> getMetaAnnotationTypes(String annotationName);
@@ -53,7 +53,7 @@ public interface AnnotationMetadata extends ClassMetadata, AnnotatedTypeMetadata
 	 * Determine whether an annotation of the given type is <em>present</em> on
 	 * the underlying class.
 	 * @param annotationName the fully qualified class name of the annotation
-	 * type to look for
+	 * type to look for    确定是否含有某个元注解
 	 * @return {@code true} if a matching annotation is present
 	 */
 	boolean hasAnnotation(String annotationName);
@@ -62,7 +62,7 @@ public interface AnnotationMetadata extends ClassMetadata, AnnotatedTypeMetadata
 	 * Determine whether the underlying class has an annotation that is itself
 	 * annotated with the meta-annotation of the given type.
 	 * @param metaAnnotationName the fully qualified class name of the
-	 * meta-annotation type to look for
+	 * meta-annotation type to look for   确定是否含有某个元注解
 	 * @return {@code true} if a matching meta-annotation is present
 	 */
 	boolean hasMetaAnnotation(String metaAnnotationName);
@@ -71,7 +71,7 @@ public interface AnnotationMetadata extends ClassMetadata, AnnotatedTypeMetadata
 	 * Determine whether the underlying class has any methods that are
 	 * annotated (or meta-annotated) with the given annotation type.
 	 * @param annotationName the fully qualified class name of the annotation
-	 * type to look for
+	 * type to look for  确定类的方法是否含有某个注解
 	 */
 	boolean hasAnnotatedMethods(String annotationName);
 
@@ -84,7 +84,7 @@ public interface AnnotationMetadata extends ClassMetadata, AnnotatedTypeMetadata
 	 * type to look for
 	 * @return a set of {@link MethodMetadata} for methods that have a matching
 	 * annotation. The return value will be an empty set if no methods match
-	 * the annotation type.
+	 * the annotation type. 返回类中所有被注解注释的方法
 	 */
 	Set<MethodMetadata> getAnnotatedMethods(String annotationName);
 

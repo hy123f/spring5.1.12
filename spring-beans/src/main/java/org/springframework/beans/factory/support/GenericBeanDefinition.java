@@ -42,7 +42,7 @@ public class GenericBeanDefinition extends AbstractBeanDefinition {
 
 	@Nullable
 	private String parentName;
-
+	//GenericBeanDefinition的patentName属性指定了当前类的父类，最重要的是它实现了parentName属性的setter、getter函数，
 
 	/**
 	 * Create a new GenericBeanDefinition, to be configured through its bean

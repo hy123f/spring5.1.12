@@ -1,3 +1,5 @@
+`./gradlew :spring-oxm:compileTestJava`   不要‘ 和 ./   是到根目录。不是下面的。
+
 从spring的目录下，执行相关的命令。
 导入的时候，不能是根目录。最好建立一个aa。
 导入过后，有报错，把jdk的包重新导入一下。

@@ -999,7 +999,7 @@ public class ResolvableType implements Serializable {
 	 * @param clazz the class to introspect ({@code null} is semantically
 	 * equivalent to {@code Object.class} for typical use cases here}
 	 * @return a {@link ResolvableType} for the specified class
-	 * @since 4.2
+	 * @since 4.2   根据传入的Class，先封装成ResolvableType。（对于指定的Class，返回一个ResolvableType，仅对原始类执行可分配性检查，这是一个包装器。）
 	 * @see #forClass(Class)
 	 * @see #getRawClass()
 	 */
