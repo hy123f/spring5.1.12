@@ -11,4 +11,8 @@ dependencies {
 	compile(project(":spring-test"))
 	compile(project(":spring-tx"))
 	compile(project(":spring-web"))
+	compile(project(":spring-webmvc"))
+	
+	optional("javax.servlet:javax.servlet-api:3.1.0")
+	
 }
