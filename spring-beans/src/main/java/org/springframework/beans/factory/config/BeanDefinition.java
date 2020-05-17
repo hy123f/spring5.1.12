@@ -31,7 +31,7 @@ import org.springframework.lang.Nullable;
  * to introspect and modify property values and other bean metadata.
  *
  * @author Juergen Hoeller
- * @author Rob Harrop
+ * @author Rob Harrop  BeanDefinition有各种各样的参数，比如是否单例，多例，  懒加载          然后再根据需求，创建一个类。
  * @since 19.03.2004
  * @see ConfigurableListableBeanFactory#getBeanDefinition
  * @see org.springframework.beans.factory.support.RootBeanDefinition
