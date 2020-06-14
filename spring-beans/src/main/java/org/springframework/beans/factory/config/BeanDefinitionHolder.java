@@ -30,7 +30,7 @@ import org.springframework.util.StringUtils;
  * <p>Can also be used for programmatic registration of inner bean
  * definitions. If you don't care about BeanNameAware and the like,
  * registering RootBeanDefinition or ChildBeanDefinition is good enough.
- *
+ *  就是包装了一下，存放了一个别名。  核心还是beanDefinition的实现类。
  * @author Juergen Hoeller
  * @since 1.0.2
  * @see org.springframework.beans.factory.BeanNameAware
@@ -48,7 +48,7 @@ public class BeanDefinitionHolder implements BeanMetadataElement {
 
 
 	/**
-	 * Create a new BeanDefinitionHolder.
+	 * Create a new BeanDefinitionHolder.  就是包装了一下，存放了一个别名。  核心还是beanDefinition的实现类。
 	 * @param beanDefinition the BeanDefinition to wrap
 	 * @param beanName the name of the bean, as specified for the bean definition
 	 */

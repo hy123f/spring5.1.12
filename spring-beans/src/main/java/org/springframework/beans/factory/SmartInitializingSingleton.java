@@ -41,7 +41,7 @@ package org.springframework.beans.factory;
  * @since 4.1
  * @see org.springframework.beans.factory.config.ConfigurableListableBeanFactory#preInstantiateSingletons()
  */
-public interface SmartInitializingSingleton {
+public interface SmartInitializingSingleton {//  hyf  通用接口，实现功能。  如果可以异步，就更好了。
 
 	/**
 	 * Invoked right at the end of the singleton pre-instantiation phase,

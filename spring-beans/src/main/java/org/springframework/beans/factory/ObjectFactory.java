@@ -36,7 +36,7 @@ import org.springframework.beans.BeansException;
  * @param <T> the object type
  * @see FactoryBean
  */
-@FunctionalInterface
+@FunctionalInterface//此处使用  java8
 public interface ObjectFactory<T> {
 
 	/**

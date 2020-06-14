@@ -74,21 +74,21 @@ public class HandlerMethodReturnValueHandlerComposite implements HandlerMethodRe
 	@Override
 	public void handleReturnValue(@Nullable Object returnValue, MethodParameter returnType,
 			ModelAndViewContainer mavContainer, NativeWebRequest webRequest) throws Exception {
-
+	    // 获取能够处理当前返回值的Handler，比如如果返回值是ModelAndView类型，那么这里的handler就是
 		HandlerMethodReturnValueHandler handler = selectHandler(returnValue, returnType);
 		if (handler == null) {
 			throw new IllegalArgumentException("Unknown return value type: " + returnType.getParameterType().getName());
-		}
+		}// 通过获取到的handler处理返回值，并将其封装到ModelAndViewContainer中
 		handler.handleReturnValue(returnValue, returnType, mavContainer, webRequest);
 	}
-
+	/** // 本方法的主要作用是获取能够处理当前返回值的ReturnValueHandler */
 	@Nullable
 	private HandlerMethodReturnValueHandler selectHandler(@Nullable Object value, MethodParameter returnType) {
-		boolean isAsyncValue = isAsyncReturnValue(value, returnType);
-		for (HandlerMethodReturnValueHandler handler : this.returnValueHandlers) {
+		boolean isAsyncValue = isAsyncReturnValue(value, returnType);  // 判断返回值是否为异步类型的返回值，即WebAsyncTask或DefferredResult
+		for (HandlerMethodReturnValueHandler handler : this.returnValueHandlers) {    // 对所有的ReturnValueHandler进行遍历，判断其是否支持当前返回值的处理。这里如果当前返回值      // 是异步类型的返回值，还会判断当前ReturnValueHandler是否为      // AsyncHandlerMethodReturnValueHandler类型，如果不是，则会继续查找
 			if (isAsyncValue && !(handler instanceof AsyncHandlerMethodReturnValueHandler)) {
 				continue;
-			}
+			} // 判断是否支持返回值处理的主要位置，比如ModelAndViewMethodReturnValueHandler就会          // 判断返回值是否为ModelAndView类型，如果是，则表示其是当前ReturnValuleHandler所支持的类型
 			if (handler.supportsReturnType(returnType)) {
 				return handler;
 			}

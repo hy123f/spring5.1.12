@@ -368,7 +368,7 @@ public abstract class WebContentGenerator extends WebApplicationObjectSupport {
 	}
 
 
-	/**
+	/** 检查给定的请求以获取支持的方法和所需的会话（如果有的话）。
 	 * Check the given request for supported methods and a required session, if any.
 	 * @param request current HTTP request
 	 * @throws ServletException if the request cannot be handled because a check failed
@@ -394,11 +394,11 @@ public abstract class WebContentGenerator extends WebApplicationObjectSupport {
 	 * @since 4.2
 	 */
 	protected final void prepareResponse(HttpServletResponse response) {
-		if (this.cacheControl != null) {
-			applyCacheControl(response, this.cacheControl);
+		if (this.cacheControl != null) {// 如果当前不存在SessionAttributes，则判断当前是否存在Cache-Control设置，
+			applyCacheControl(response, this.cacheControl);// 如果存在，则按照该设置进行response处理，
 		}
 		else {
-			applyCacheSeconds(response, this.cacheSeconds);
+			applyCacheSeconds(response, this.cacheSeconds);//如果不存在，则设置response中的
 		}
 		if (this.varyByRequestHeaders != null) {
 			for (String value : getVaryRequestHeadersToAdd(response, this.varyByRequestHeaders)) {

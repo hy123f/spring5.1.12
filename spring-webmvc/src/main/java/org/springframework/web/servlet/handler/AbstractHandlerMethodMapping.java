@@ -95,7 +95,7 @@ public abstract class AbstractHandlerMethodMapping<T> extends AbstractHandlerMap
 	@Nullable
 	private HandlerMethodMappingNamingStrategy<T> namingStrategy;
 
-	private final MappingRegistry mappingRegistry = new MappingRegistry();
+	private final MappingRegistry mappingRegistry = new MappingRegistry();//  hyf  很好，对加锁的运用
 
 
 	/**
@@ -355,23 +355,23 @@ public abstract class AbstractHandlerMethodMapping<T> extends AbstractHandlerMap
 
 	// Handler method lookup
 
-	/**
+	/**查找给定请求的处理程序方法。   /car/selectByPrimaryKey/9  public com.action.Result com.action.CarController.selectByPrimaryKey(java.lang.Long)
 	 * Look up a handler method for the given request.
 	 */
 	@Override
 	protected HandlerMethod getHandlerInternal(HttpServletRequest request) throws Exception {
-		String lookupPath = getUrlPathHelper().getLookupPathForRequest(request);
-		this.mappingRegistry.acquireReadLock();
+		String lookupPath = getUrlPathHelper().getLookupPathForRequest(request);//  /car/selectByPrimaryKey/9
+		this.mappingRegistry.acquireReadLock();  // 加锁
 		try {
 			HandlerMethod handlerMethod = lookupHandlerMethod(lookupPath, request);
 			return (handlerMethod != null ? handlerMethod.createWithResolvedBean() : null);
 		}
 		finally {
-			this.mappingRegistry.releaseReadLock();
+			this.mappingRegistry.releaseReadLock();// 释放锁
 		}
 	}
 
-	/**
+	/**  查找当前请求的最佳匹配处理程序方法。如果找到多个匹配项，则选择最佳匹配项。
 	 * Look up the best-matching handler method for the current request.
 	 * If multiple matches are found, the best match is selected.
 	 * @param lookupPath mapping lookup path within the current servlet mapping
@@ -380,11 +380,11 @@ public abstract class AbstractHandlerMethodMapping<T> extends AbstractHandlerMap
 	 * @see #handleMatch(Object, String, HttpServletRequest)
 	 * @see #handleNoMatch(Set, String, HttpServletRequest)
 	 */
-	@Nullable
+	@Nullable//返回HandlerMethod，会有各种处理。看核心
 	protected HandlerMethod lookupHandlerMethod(String lookupPath, HttpServletRequest request) throws Exception {
-		List<Match> matches = new ArrayList<>();
-		List<T> directPathMatches = this.mappingRegistry.getMappingsByUrl(lookupPath);
-		if (directPathMatches != null) {
+		List<Match> matches = new ArrayList<>();  //下面如果是简单的类型，直接匹配上了。
+		List<T> directPathMatches = this.mappingRegistry.getMappingsByUrl(lookupPath); //  /car/selectByPrimaryKey/9  /car/selectByPrimaryKey/id  找不到
+		if (directPathMatches != null) {//直接匹配上
 			addMatchingMappings(directPathMatches, matches, request);
 		}
 		if (matches.isEmpty()) {
@@ -396,7 +396,7 @@ public abstract class AbstractHandlerMethodMapping<T> extends AbstractHandlerMap
 			Comparator<Match> comparator = new MatchComparator(getMappingComparator(request));
 			matches.sort(comparator);
 			Match bestMatch = matches.get(0);
-			if (matches.size() > 1) {
+			if (matches.size() > 1) {//如果有多个匹配上，应该会有一些处理。
 				if (logger.isTraceEnabled()) {
 					logger.trace(matches.size() + " matching mappings: " + matches);
 				}
@@ -526,7 +526,7 @@ public abstract class AbstractHandlerMethodMapping<T> extends AbstractHandlerMap
 
 		private final Map<T, HandlerMethod> mappingLookup = new LinkedHashMap<>();
 
-		private final MultiValueMap<String, T> urlLookup = new LinkedMultiValueMap<>();
+		private final MultiValueMap<String, T> urlLookup = new LinkedMultiValueMap<>();//{/car/selectByPrimaryKey/{id}=[{[/car/selectByPrimaryKey/{id}],methods=[GET]}], /error=[{[/error]}, {[/error],produces=[text/html]}]}
 
 		private final Map<String, List<HandlerMethod>> nameLookup = new ConcurrentHashMap<>();
 

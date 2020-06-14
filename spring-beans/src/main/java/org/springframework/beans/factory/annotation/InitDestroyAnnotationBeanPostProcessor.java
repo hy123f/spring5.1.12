@@ -133,7 +133,7 @@ public class InitDestroyAnnotationBeanPostProcessor
 	public Object postProcessBeforeInitialization(Object bean, String beanName) throws BeansException {
 		LifecycleMetadata metadata = findLifecycleMetadata(bean.getClass());
 		try {
-			metadata.invokeInitMethods(bean, beanName);
+			metadata.invokeInitMethods(bean, beanName);//  通过反射执行  hyf_postConstruct
 		}
 		catch (InvocationTargetException ex) {
 			throw new BeanCreationException(beanName, "Invocation of init method failed", ex.getTargetException());
@@ -246,7 +246,7 @@ public class InitDestroyAnnotationBeanPostProcessor
 	/**
 	 * Class representing information about annotated init and destroy methods.
 	 */
-	private class LifecycleMetadata {
+	private class LifecycleMetadata {  // hyf
 
 		private final Class<?> targetClass;
 
@@ -304,7 +304,7 @@ public class InitDestroyAnnotationBeanPostProcessor
 					if (logger.isTraceEnabled()) {
 						logger.trace("Invoking init method on bean '" + beanName + "': " + element.getMethod());
 					}
-					element.invoke(target);
+					element.invoke(target);//  hyf  通过反射执行方法，可以研究一下。
 				}
 			}
 		}

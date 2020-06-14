@@ -8,14 +8,14 @@ import org.aspectj.lang.annotation.Before;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
-@Order(1)
-@Aspect
-@Component
-public class VlidationAspect {
-
-	@Before("com.atguigu.spring.aop.annotation.LoggingAspect.declareJointPointExpression()")
-	public void validateArgs(JoinPoint joinPoint){
-		System.out.println("-->validate:" + Arrays.asList(joinPoint.getArgs()));
-	}
-	
-}
+//@Order(1)
+//@Aspect
+//@Component
+//public class VlidationAspect {
+//
+//	@Before("com.atguigu.spring.aop.annotation.LoggingAspect.declareJointPointExpression()")
+//	public void validateArgs(JoinPoint joinPoint){
+//		System.out.println("-->validate:" + Arrays.asList(joinPoint.getArgs()));
+//	}
+//	
+//}

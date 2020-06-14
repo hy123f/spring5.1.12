@@ -9,6 +9,8 @@ public class Main {
 	public static void main(String[] args) {
 		
 		AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext(AppConfig.class);
+//		ApplicationContext ctx = new ClassPathXmlApplicationContext("aop1/applicationContext.xml");
+
 		ArithmeticCalculator arithmeticCalculator = (ArithmeticCalculator) ctx.getBean("arithmeticCalculator");
 		
 		System.out.println(arithmeticCalculator.getClass().getName());

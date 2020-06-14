@@ -92,7 +92,7 @@ public class ServletInvocableHandlerMethod extends InvocableHandlerMethod {
 	}
 
 
-	/**
+	/**  ①处理请求参数进行处理，将request中的参数封装为当前handler的参数的形式；②通过反射调用当前handler；③对方法的返回值进行处理，以将其封装为一个ModleAndView对象。这里第一步和第二步封装在了invokeForRequest()方法中，
 	 * Invoke the method and handle the return value through one of the
 	 * configured {@link HandlerMethodReturnValueHandler HandlerMethodReturnValueHandlers}.
 	 * @param webRequest the current request
@@ -101,11 +101,11 @@ public class ServletInvocableHandlerMethod extends InvocableHandlerMethod {
 	 */
 	public void invokeAndHandle(ServletWebRequest webRequest, ModelAndViewContainer mavContainer,
 			Object... providedArgs) throws Exception {
-
+		// 对目标handler的参数进行处理，并且调用目标handler
 		Object returnValue = invokeForRequest(webRequest, mavContainer, providedArgs);
-		setResponseStatus(webRequest);
+		setResponseStatus(webRequest);// 设置相关的返回状态
 
-		if (returnValue == null) {
+		if (returnValue == null) {// 如果请求处理完成，则设置requestHandled属性
 			if (isRequestNotModified(webRequest) || getResponseStatus() != null || mavContainer.isRequestHandled()) {
 				disableContentCachingIfNecessary(webRequest);
 				mavContainer.setRequestHandled(true);
@@ -113,13 +113,13 @@ public class ServletInvocableHandlerMethod extends InvocableHandlerMethod {
 			}
 		}
 		else if (StringUtils.hasText(getResponseStatusReason())) {
-			mavContainer.setRequestHandled(true);
+			mavContainer.setRequestHandled(true);// 如果请求失败，但是有错误原因，那么也会设置requestHandled属性
 			return;
 		}
 
 		mavContainer.setRequestHandled(false);
 		Assert.state(this.returnValueHandlers != null, "No return value handlers");
-		try {
+		try {        // 遍历当前容器中所有ReturnValueHandler，判断哪种handler支持当前返回值的处理，          // 如果支持，则使用该handler处理该返回值
 			this.returnValueHandlers.handleReturnValue(
 					returnValue, getReturnValueType(returnValue), mavContainer, webRequest);
 		}

@@ -85,8 +85,8 @@ public class AnnotationConfigApplicationContext extends GenericApplicationContex
 	 */
 	public AnnotationConfigApplicationContext(Class<?>... componentClasses) {
 		this();//调用父类无参数的构造方法。
-		register(componentClasses);//此处实际就是一个注册的方法。   可以手动把类注册进去
-		refresh();
+		register(componentClasses);//此处实际就是一个注册的方法。   可以手动把类注册进去   只是注册bean。
+		refresh();//刷新，这儿做的事就比较多 了。
 	}
 
 	/**

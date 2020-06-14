@@ -49,20 +49,20 @@ import org.springframework.lang.Nullable;
  */
 public interface HandlerAdapter {
 
-	/**
+	/** // 用于判断当前HandlerAdapter是否能够处理当前请求
 	 * Given a handler instance, return whether or not this {@code HandlerAdapter}
 	 * can support it. Typical HandlerAdapters will base the decision on the handler
 	 * type. HandlerAdapters will usually only support one handler type each.
 	 * <p>A typical implementation:
 	 * <p>{@code
 	 * return (handler instanceof MyHandler);
-	 * }
+	 * }   HandlerAdapter.supports()方法的主要作用在于判断当前的HandlerAdapter是否能够支持当前的handler的适配。这里的handler指的是某个Controller的方法，其是由HandlerExecutionChain HandlerMapping.getHandler(HttpServletRequest)方法获取到的。从这里可以看出，HandlerMapping的作用主要是根据request请求获取能够处理当前request的handler，而HandlerAdapter的作用在于将request中的各个属性，如request param适配为handler能够处理的形式。
 	 * @param handler handler object to check
 	 * @return whether or not this object can use the given handler
 	 */
 	boolean supports(Object handler);
 
-	/**
+	/**  // 如果当前HandlerAdapter能够用于适配当前请求，那么就会处理当前请求中   // 诸如参数和返回值等信息，以便能够直接委托给具体的Handler处理
 	 * Use the given handler to handle this request.
 	 * The workflow that is required may vary widely.
 	 * @param request current HTTP request
@@ -77,7 +77,7 @@ public interface HandlerAdapter {
 	@Nullable
 	ModelAndView handle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception;
 
-	/**
+	/**  // 获取当前请求的最后更改时间，主要用于供给浏览器判断当前请求是否修改过，  // 从而判断是否可以直接使用之前缓存的结果   这个很好。
 	 * Same contract as for HttpServlet's {@code getLastModified} method.
 	 * Can simply return -1 if there's no support in the handler class.
 	 * @param request current HTTP request

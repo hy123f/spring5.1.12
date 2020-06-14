@@ -102,7 +102,7 @@ import org.springframework.util.StringUtils;
  * {@link org.springframework.beans.factory.ListableBeanFactory} interface,
  * have a look at {@link StaticListableBeanFactory}, which manages existing
  * bean instances rather than creating new ones based on bean definitions.
- *  
+ *  存放map真正的地方。
  * @author Rod Johnson
  * @author Juergen Hoeller
  * @author Sam Brannen
@@ -160,7 +160,7 @@ public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFacto
 	private final Map<Class<?>, Object> resolvableDependencies = new ConcurrentHashMap<>(16);
 
 	/** Map of bean definition objects, keyed by bean name.  存放beans*/
-	private final Map<String, BeanDefinition> beanDefinitionMap = new ConcurrentHashMap<>(256);
+	private final Map<String, BeanDefinition> beanDefinitionMap = new ConcurrentHashMap<>(256); //设置大小，一般情况应该是超过的。
 
 	/** Map of singleton and non-singleton bean names, keyed by dependency type. */
 	private final Map<Class<?>, String[]> allBeanNamesByType = new ConcurrentHashMap<>(64);
@@ -854,12 +854,12 @@ public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFacto
 			}
 		}
 
-		// Trigger post-initialization callback for all applicable beans...
-		for (String beanName : beanNames) {
-			Object singletonInstance = getSingleton(beanName);
+		// Trigger post-initialization callback for all applicable beans...  为所有适用的bean触发初始化后回调。。。
+		for (String beanName : beanNames) {//执行SmartInitializingSingleton的方法。
+			Object singletonInstance = getSingleton(beanName);//取得class
 			if (singletonInstance instanceof SmartInitializingSingleton) {
 				final SmartInitializingSingleton smartSingleton = (SmartInitializingSingleton) singletonInstance;
-				if (System.getSecurityManager() != null) {
+				if (System.getSecurityManager() != null) {  //如果已经为当前应用程序建立了安全管理员，则返回该安全管理员; 否则返回null 。 
 					AccessController.doPrivileged((PrivilegedAction<Object>) () -> {
 						smartSingleton.afterSingletonsInstantiated();
 						return null;
@@ -876,7 +876,7 @@ public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFacto
 	//---------------------------------------------------------------------
 	// Implementation of BeanDefinitionRegistry interface
 	//---------------------------------------------------------------------
-
+	/** 注册bean的地方 */
 	@Override
 	public void registerBeanDefinition(String beanName, BeanDefinition beanDefinition)
 			throws BeanDefinitionStoreException {
@@ -894,8 +894,8 @@ public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFacto
 			}
 		}
 
-		BeanDefinition existingDefinition = this.beanDefinitionMap.get(beanName);
-		if (existingDefinition != null) {
+		BeanDefinition existingDefinition = this.beanDefinitionMap.get(beanName);//从map获取bean
+		if (existingDefinition != null) {//如果存在，进行替换。    什么时候会存在
 			if (!isAllowBeanDefinitionOverriding()) {
 				throw new BeanDefinitionOverrideException(beanName, beanDefinition, existingDefinition);
 			}
@@ -921,9 +921,9 @@ public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFacto
 							"] with [" + beanDefinition + "]");
 				}
 			}
-			this.beanDefinitionMap.put(beanName, beanDefinition);
+			this.beanDefinitionMap.put(beanName, beanDefinition);//从新放入
 		}
-		else {
+		else {//不存在
 			if (hasBeanCreationStarted()) {
 				// Cannot modify startup-time collection elements anymore (for stable iteration)
 				synchronized (this.beanDefinitionMap) {
@@ -937,9 +937,9 @@ public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFacto
 			}
 			else {
 				// Still in startup registration phase
-				this.beanDefinitionMap.put(beanName, beanDefinition);
-				this.beanDefinitionNames.add(beanName);
-				removeManualSingletonName(beanName);
+				this.beanDefinitionMap.put(beanName, beanDefinition);//放入map，   把bean放入map
+				this.beanDefinitionNames.add(beanName);//放入names
+				removeManualSingletonName(beanName);//移除重复的一些ManualSingletonName ，java8
 			}
 			this.frozenBeanDefinitionNames = null;
 		}
@@ -1047,7 +1047,7 @@ public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFacto
 		clearByTypeCache();
 	}
 
-	private void removeManualSingletonName(String beanName) {
+	private void removeManualSingletonName(String beanName) {//此处是java8 的运用。  
 		updateManualSingletonNames(set -> set.remove(beanName), set -> set.contains(beanName));
 	}
 
