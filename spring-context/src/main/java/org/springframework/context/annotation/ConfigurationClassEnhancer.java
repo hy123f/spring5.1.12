@@ -106,7 +106,7 @@ class ConfigurationClassEnhancer {
 			}
 			return configClass;
 		}
-		Class<?> enhancedClass = createClass(newEnhancer(configClass, classLoader));
+		Class<?> enhancedClass = createClass(newEnhancer(configClass, classLoader));//返回一个代理的对象，appclilib
 		if (logger.isTraceEnabled()) {
 			logger.trace(String.format("Successfully enhanced %s; enhanced class name is: %s",
 					configClass.getName(), enhancedClass.getName()));
@@ -114,7 +114,7 @@ class ConfigurationClassEnhancer {
 		return enhancedClass;
 	}
 
-	/**
+	/**返回一个代理的对象。   CGLIB一个经典的使用
 	 * Creates a new CGLIB {@link Enhancer} instance.
 	 */
 	private Enhancer newEnhancer(Class<?> configSuperClass, @Nullable ClassLoader classLoader) {

@@ -776,33 +776,33 @@ public class RequestMappingHandlerAdapter extends AbstractHandlerMethodAdapter
 	protected ModelAndView handleInternal(HttpServletRequest request,
 			HttpServletResponse response, HandlerMethod handlerMethod) throws Exception {
 
-		ModelAndView mav;
+		ModelAndView mav;  //返回的东西
 		checkRequest(request);
 
 		// Execute invokeHandlerMethod in synchronized block if required.
-		if (this.synchronizeOnSession) {
-			HttpSession session = request.getSession(false);
+		if (this.synchronizeOnSession) { // 判断当前是否需要支持在同一个session中只能线性地处理请求
+			HttpSession session = request.getSession(false);  // 获取当前请求的session对象
 			if (session != null) {
-				Object mutex = WebUtils.getSessionMutex(session);
+				Object mutex = WebUtils.getSessionMutex(session); // 为当前session生成一个唯一的可以用于锁定的key
 				synchronized (mutex) {
-					mav = invokeHandlerMethod(request, response, handlerMethod);
+					mav = invokeHandlerMethod(request, response, handlerMethod);//关注这个方法  // 对HandlerMethod进行参数等的适配处理，并调用目标handler
 				}
 			}
-			else {
+			else {// 如果当前不存在session，则直接对HandlerMethod进行适配
 				// No HttpSession available -> no mutex necessary
 				mav = invokeHandlerMethod(request, response, handlerMethod);
 			}
 		}
-		else {
+		else { // 如果当前不需要对session进行同步处理，则直接对HandlerMethod进行适配
 			// No synchronization on session demanded at all...
 			mav = invokeHandlerMethod(request, response, handlerMethod);
 		}
-
+		// 判断当前请求头中是否包含Cache-Control请求头，如果不包含，则对当前response进行处理，  // 为其设置过期时间
 		if (!response.containsHeader(HEADER_CACHE_CONTROL)) {
-			if (getSessionAttributesHandler(handlerMethod).hasSessionAttributes()) {
+			if (getSessionAttributesHandler(handlerMethod).hasSessionAttributes()) {        // 如果当前SessionAttribute中存在配置的attributes，则为其设置过期时间。 // 这里SessionAttribute主要是通过@SessionAttribute注解生成的  // 这里SessionAttribute主要是通过@SessionAttribute注解生成的
 				applyCacheSeconds(response, this.cacheSecondsForSessionAttributeHandlers);
 			}
-			else {
+			else {// Cache的过期时间为-1，即立即失效
 				prepareResponse(response);
 			}
 		}
@@ -840,7 +840,7 @@ public class RequestMappingHandlerAdapter extends AbstractHandlerMethodAdapter
 		return sessionAttrHandler;
 	}
 
-	/**
+	/**  ①获取当前容器中使用@InitBinder注解注册的属性转换器；②获取当前容器中使用@ModelAttribute标注但没有使用@RequestMapping标注的方法，并且在调用目标方法之前调用这些方法；③判断目标handler返回值是否使用了WebAsyncTask或DefferredResult封装，如果封装了，则按照异步任务的方式进行执行；④处理请求参数，调用目标方法和处理返回值。
 	 * Invoke the {@link RequestMapping} handler method preparing a {@link ModelAndView}
 	 * if view resolution is required.
 	 * @since 4.2
@@ -852,49 +852,50 @@ public class RequestMappingHandlerAdapter extends AbstractHandlerMethodAdapter
 
 		ServletWebRequest webRequest = new ServletWebRequest(request, response);
 		try {
-			WebDataBinderFactory binderFactory = getDataBinderFactory(handlerMethod);
-			ModelFactory modelFactory = getModelFactory(handlerMethod, binderFactory);
-
+			WebDataBinderFactory binderFactory = getDataBinderFactory(handlerMethod);// 获取容器中全局配置的@InitBinder和当前HandlerMethod所对应的Controller中    // 配置的InitBinder，用于进行参数的绑定
+			ModelFactory modelFactory = getModelFactory(handlerMethod, binderFactory); // 获取容器中全局配置的ModelAttribute和当前当前HandlerMethod所对应的Controller          // 中配置的ModelAttribute，这些配置的方法将会在目标方法调用之前进行调用
+			// 将handlerMethod封装为一个ServletInvocableHandlerMethod对象，          // 该对象用于对当前request的整体调用流程进行了封装
 			ServletInvocableHandlerMethod invocableMethod = createInvocableHandlerMethod(handlerMethod);
-			if (this.argumentResolvers != null) {
+			if (this.argumentResolvers != null) {// 设置当前容器中配置的所有ArgumentResolver
 				invocableMethod.setHandlerMethodArgumentResolvers(this.argumentResolvers);
 			}
-			if (this.returnValueHandlers != null) {
+			if (this.returnValueHandlers != null) {// 设置当前容器中配置的所有ReturnValueHandler
 				invocableMethod.setHandlerMethodReturnValueHandlers(this.returnValueHandlers);
 			}
-			invocableMethod.setDataBinderFactory(binderFactory);
-			invocableMethod.setParameterNameDiscoverer(this.parameterNameDiscoverer);
+			invocableMethod.setDataBinderFactory(binderFactory);// 将前面创建的WebDataBinderFactory设置到ServletInvocableHandlerMethod中
+			invocableMethod.setParameterNameDiscoverer(this.parameterNameDiscoverer);// 设置ParameterNameDiscoverer，该对象将按照一定的规则获取当前参数的名称
 
 			ModelAndViewContainer mavContainer = new ModelAndViewContainer();
 			mavContainer.addAllAttributes(RequestContextUtils.getInputFlashMap(request));
 			modelFactory.initModel(webRequest, mavContainer, invocableMethod);
 			mavContainer.setIgnoreDefaultModelOnRedirect(this.ignoreDefaultModelOnRedirect);
 
-			AsyncWebRequest asyncWebRequest = WebAsyncUtils.createAsyncWebRequest(request, response);
+			//hyf  // 获取当前的AsyncWebRequest，这里AsyncWebRequest的主要作用是用于判断目标          // handler的返回值是否为WebAsyncTask或DefferredResult，如果是这两种中的一种，          // 则说明当前请求的处理应该是异步的。所谓的异步，指的是当前请求会将Controller中          // 封装的业务逻辑放到一个线程池中进行调用，待该调用有返回结果之后再返回到response中。          // 这种处理的优点在于用于请求分发的线程能够解放出来，从而处理更多的请求，只有待目标任务          // 完成之后才会回来将该异步任务的结果返回。
+			AsyncWebRequest asyncWebRequest = WebAsyncUtils.createAsyncWebRequest(request, response);         //      Spring会判断当前handler的返回值是否为WebAsyncTask或DefferredResult类型，如果是这两种类型的一种，那么就会将这些任务放入一个线程池中进行异步调用，而当前线程则可以继续进行请求的分发。这里这种设计的目的是，默认情况下Spring处理请求都是同步的，也就是说进行请求分发的线程是会调用用户所声明的handler方法的，那么如果用户声明的handler执行时间较长，就可能导致Spring用于请求处理的线程都耗在了处理这些业务代码上，也就导致后续的请求必须等待，这在高并发的场景中是不能被允许的，因而这里Spring提供了一种异步任务处理的方式，也就是进行请求分发的线程只需要将用户的业务任务放到线程池中执行即可，其自身可以继续进行其他的请求的分发。如果线程池中的任务处理完成，其会通知Spring将处理结果返回给调用方。关于异步任务的处理流程，我们后面会使用专门的章节进行讲解，这里只是简单的讲解其主要功能。
 			asyncWebRequest.setTimeout(this.asyncRequestTimeout);
-
+			// 封装异步任务的线程池，request和interceptors到WebAsyncManager中
 			WebAsyncManager asyncManager = WebAsyncUtils.getAsyncManager(request);
 			asyncManager.setTaskExecutor(this.taskExecutor);
 			asyncManager.setAsyncWebRequest(asyncWebRequest);
 			asyncManager.registerCallableInterceptors(this.callableInterceptors);
 			asyncManager.registerDeferredResultInterceptors(this.deferredResultInterceptors);
 
-			if (asyncManager.hasConcurrentResult()) {
+			if (asyncManager.hasConcurrentResult()) {// 这里就是用于判断当前请求是否有异步任务结果的，如果存在，则对异步任务结果进行封装
 				Object result = asyncManager.getConcurrentResult();
 				mavContainer = (ModelAndViewContainer) asyncManager.getConcurrentResultContext()[0];
 				asyncManager.clearConcurrentResult();
 				LogFormatUtils.traceDebug(logger, traceOn -> {
 					String formatted = LogFormatUtils.formatValue(result, !traceOn);
 					return "Resume with async result [" + formatted + "]";
-				});
+				});            // 封装异步任务的处理结果，虽然封装的是一个HandlerMethod，但只是Spring简单的封装              // 的一个Callable对象，该对象中直接将调用结果返回了。这样封装的目的在于能够统一的              // 进行右面的ServletInvocableHandlerMethod.invokeAndHandle()方法的调用
 				invocableMethod = invocableMethod.wrapConcurrentResult(result);
 			}
-
+			// 对请求参数进行处理，调用目标HandlerMethod， //并且将返回值封装为一个ModelAndView对象
 			invocableMethod.invokeAndHandle(webRequest, mavContainer);
 			if (asyncManager.isConcurrentHandlingStarted()) {
 				return null;
 			}
-
+	        // 对封装的ModelAndView进行处理，主要是判断当前请求是否进行了重定向，如果进行了重定向，          // 还会判断是否需要将FlashAttributes封装到新的请求中
 			return getModelAndView(mavContainer, modelFactory, webRequest);
 		}
 		finally {
@@ -911,15 +912,15 @@ public class RequestMappingHandlerAdapter extends AbstractHandlerMethodAdapter
 	protected ServletInvocableHandlerMethod createInvocableHandlerMethod(HandlerMethod handlerMethod) {
 		return new ServletInvocableHandlerMethod(handlerMethod);
 	}
-
+	/**  主要工作还是获取当前需要先于目标handler执行的方法，并且获取的方式与前面的InitBinder非常的相似，这里就不再赘述。关于这里获取的方法，其具体的执行过程实际上是在后面的ModelFactory.initModel()方法中进行 */
 	private ModelFactory getModelFactory(HandlerMethod handlerMethod, WebDataBinderFactory binderFactory) {
-		SessionAttributesHandler sessionAttrHandler = getSessionAttributesHandler(handlerMethod);
-		Class<?> handlerType = handlerMethod.getBeanType();
+		SessionAttributesHandler sessionAttrHandler = getSessionAttributesHandler(handlerMethod);    // 这里SessionAttributeHandler的作用是声明几个属性，使其能够在多个请求之间共享，      // 并且其能够保证当前request返回的model中始终保有这些属性
+		Class<?> handlerType = handlerMethod.getBeanType();    // 判断缓存中是否保存有当前handler执行之前所需要执行的标注了@ModelAttribute的方法
 		Set<Method> methods = this.modelAttributeCache.get(handlerType);
-		if (methods == null) {
+		if (methods == null) {        // 如果缓存中没有相关属性，那么就在当前bean中查找所有使用@ModelAttribute标注，但是          // 没有使用@RequestMapping标注的方法，并将这些方法缓存起来
 			methods = MethodIntrospector.selectMethods(handlerType, MODEL_ATTRIBUTE_METHODS);
 			this.modelAttributeCache.put(handlerType, methods);
-		}
+		}    // 获取全局的使用@ModelAttribute标注，但是没有使用@RequestMapping标注的方法，      // 这里全局类型的方法的声明方式需要注意的是，其所在的bean必须使用@ControllerAdvice进行标注
 		List<InvocableHandlerMethod> attrMethods = new ArrayList<>();
 		// Global methods first
 		this.modelAttributeAdviceCache.forEach((clazz, methodSet) -> {
@@ -929,11 +930,11 @@ public class RequestMappingHandlerAdapter extends AbstractHandlerMethodAdapter
 					attrMethods.add(createModelAttributeMethod(binderFactory, bean, method));
 				}
 			}
-		});
+		});    // 将当前方法中使用@ModelAttribute标注的方法添加到需要执行的attrMethods中。从这里的添加顺序      // 可以看出，全局类型的方法将会先于局部类型的方法执行
 		for (Method method : methods) {
 			Object bean = handlerMethod.getBean();
 			attrMethods.add(createModelAttributeMethod(binderFactory, bean, method));
-		}
+		}// 将需要执行的方法等数据封装为ModelFactory对象
 		return new ModelFactory(attrMethods, binderFactory, sessionAttrHandler);
 	}
 
@@ -946,28 +947,28 @@ public class RequestMappingHandlerAdapter extends AbstractHandlerMethodAdapter
 		attrMethod.setDataBinderFactory(factory);
 		return attrMethod;
 	}
-
+	/** 这里获取InitBinder的方式主要有两种，一种是获取全局配置的InitBinder，全局类型的InitBinder需要声明的类上使用@ControllerAdvice进行标注，并且声明方法上使用@InitBinder进行标注；另一种则是获取当前handler所在类中的使用@InitBinder注解标注的方法。这两种InitBinder都会执行，只不过全局类型的InitBinder会先于局部类型的InitBinder执行。关于使用@InitBinder标注的方法的执行时间点，需要说明的是，因为其与参数绑定有关，因而其只会在参数绑定时才会执行。 */
 	private WebDataBinderFactory getDataBinderFactory(HandlerMethod handlerMethod) throws Exception {
-		Class<?> handlerType = handlerMethod.getBeanType();
+		Class<?> handlerType = handlerMethod.getBeanType();    // 判断当前缓存中是否缓存了当前bean所需要装配的InitBinder方法，如果存在，则直接从缓存中取，      // 如果不存在，则在当前bean中进行扫描获取
 		Set<Method> methods = this.initBinderCache.get(handlerType);
-		if (methods == null) {
+		if (methods == null) {  // 在当前bean中查找所有标注了@InitBinder注解的方法，这里INIT_BINDER_METHODS就是一个          // 选择器，表示只获
 			methods = MethodIntrospector.selectMethods(handlerType, INIT_BINDER_METHODS);
 			this.initBinderCache.put(handlerType, methods);
-		}
+		}// 这里initBinderAdviceCache是在RequestMappingHandlerAdapter初始化时同步初始化的，      // 其内包含的方法有如下两个特点：①当前方法所在类使用@ControllerAdvice进行标注了；      // ②当前方法使用@InitBinder进行了标注。也就是说其内保存的方法可以理解为是全局类型      // 的参数绑定方
 		List<InvocableHandlerMethod> initBinderMethods = new ArrayList<>();
 		// Global methods first
 		this.initBinderAdviceCache.forEach((clazz, methodSet) -> {
-			if (clazz.isApplicableToBeanType(handlerType)) {
+			if (clazz.isApplicableToBeanType(handlerType)) {// 这里判断的是当前配置的全局类型的InitBinder是否能够应用于当前bean，          // 判断的方式主要在@ControllerAdvice注解中进行了声明，包括通过包名，类所在的包，          // 接口或者注解
 				Object bean = clazz.resolveBean();
 				for (Method method : methodSet) {
 					initBinderMethods.add(createInitBinderMethod(bean, method));
 				}
 			}
 		});
-		for (Method method : methods) {
+		for (Method method : methods) {    // 这里是将当前HandlerMethod所在bean中的InitBinder添加到需要执行的initBinderMethods中。      // 这里从添加的顺序可以看出，全局类型的InitBinder会在当前bean中的InitBinder之前执行
 			Object bean = handlerMethod.getBean();
 			initBinderMethods.add(createInitBinderMethod(bean, method));
-		}
+		}// 将需要执行的InitBinder封装到InitBinderDataBinderFactory中
 		return createDataBinderFactory(initBinderMethods);
 	}
 

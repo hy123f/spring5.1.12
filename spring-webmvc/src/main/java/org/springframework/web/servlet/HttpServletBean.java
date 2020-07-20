@@ -145,7 +145,7 @@ public abstract class HttpServletBean extends HttpServlet implements Environment
 	 * @throws ServletException if bean properties are invalid (or required
 	 * properties are missing), or if subclass initialization fails.
 	 */
-	@Override
+	@Override//项目启动的时候不走（可能tomcat的处理。），第一次访问走。  
 	public final void init() throws ServletException {
 
 		// Set bean properties from init parameters.
@@ -167,7 +167,7 @@ public abstract class HttpServletBean extends HttpServlet implements Environment
 		}
 
 		// Let subclasses do whatever initialization they like.
-		initServletBean();
+		initServletBean();// 让子类实现的方法，这种在父类定义在子类实现的方式叫做模版方法模式
 	}
 
 	/**

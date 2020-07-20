@@ -517,7 +517,7 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 			// Prepare this context for refreshing.
 			prepareRefresh();
 
-			// Tell the subclass to refresh the internal bean factory.
+			// Tell the subclass to refresh the internal bean factory.//取得DefaultListableBeanFactory
 			ConfigurableListableBeanFactory beanFactory = obtainFreshBeanFactory();
 
 			// Prepare the bean factory for use in this context.
@@ -528,9 +528,9 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 				postProcessBeanFactory(beanFactory);
 
 				// Invoke factory processors registered as beans in the context.完成了所谓的扫描。DefaultListableBeanFactory  会有一个map
-				invokeBeanFactoryPostProcessors(beanFactory);
+				invokeBeanFactoryPostProcessors(beanFactory);//执行自定义的processbeanfactory和spring内部自己定义的。
 
-				// Register bean processors that intercept bean creation.
+				// Register bean processors that intercept bean creation.//完成了所谓的扫描。。。
 				registerBeanPostProcessors(beanFactory);
 
 				// Initialize message source for this context.
@@ -873,7 +873,7 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 		// Allow for caching all bean definition metadata, not expecting further changes.
 		beanFactory.freezeConfiguration();
 
-		// Instantiate all remaining (non-lazy-init) singletons.实例化所有剩余的（非延迟初始化）单例。
+		// Instantiate all remaining (non-lazy-init) singletons.实例化所有剩余的（非延迟初始化）单例。  创建class
 		beanFactory.preInstantiateSingletons();
 	}
 
@@ -972,7 +972,7 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 	@Override
 	public void close() {
 		synchronized (this.startupShutdownMonitor) {
-			doClose();
+			doClose();//容器关闭
 			// If we registered a JVM shutdown hook, we don't need it anymore now:
 			// We've already explicitly closed the context.
 			if (this.shutdownHook != null) {

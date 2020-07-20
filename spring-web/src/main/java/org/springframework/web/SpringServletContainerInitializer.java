@@ -101,7 +101,7 @@ import org.springframework.util.ReflectionUtils;
  * <h2>See Also</h2>
  * See {@link WebApplicationInitializer} Javadoc for examples and detailed usage
  * recommendations.<p>
- *
+ * //servlet3.0规范，凭什么扫描这个类   javax.servlet.ServletContainerInitializer
  * @author Chris Beams
  * @author Juergen Hoeller
  * @author Rossen Stoyanchev
@@ -109,10 +109,10 @@ import org.springframework.util.ReflectionUtils;
  * @see #onStartup(Set, ServletContext)
  * @see WebApplicationInitializer
  */
-@HandlesTypes(WebApplicationInitializer.class)
+@HandlesTypes(WebApplicationInitializer.class)//这个注解，扫描所有实现了WebApplicationInitializer的类。   否则所有类，都实现ServletContainerInitializer，是不是有点太麻烦了。
 public class SpringServletContainerInitializer implements ServletContainerInitializer {
 
-	/**
+	/**  ServletContainerInitializer   这个就是servlet3.0中的方法。
 	 * Delegate the {@code ServletContext} to any {@link WebApplicationInitializer}
 	 * implementations present on the application classpath.
 	 * <p>Because this class declares @{@code HandlesTypes(WebApplicationInitializer.class)},
@@ -140,10 +140,10 @@ public class SpringServletContainerInitializer implements ServletContainerInitia
 	 */
 	@Override
 	public void onStartup(@Nullable Set<Class<?>> webAppInitializerClasses, ServletContext servletContext)
-			throws ServletException {
+			throws ServletException {//上面的注解吧所有的类扫描到webAppInitializerClasses
 
 		List<WebApplicationInitializer> initializers = new LinkedList<>();
-
+		//1.通过反射，创造所有类。
 		if (webAppInitializerClasses != null) {
 			for (Class<?> waiClass : webAppInitializerClasses) {
 				// Be defensive: Some servlet containers provide us with invalid classes,
@@ -165,7 +165,7 @@ public class SpringServletContainerInitializer implements ServletContainerInitia
 			servletContext.log("No Spring WebApplicationInitializer types detected on classpath");
 			return;
 		}
-
+		//2.然后调用这个类的onStartup方法。。
 		servletContext.log(initializers.size() + " Spring WebApplicationInitializers detected on classpath");
 		AnnotationAwareOrderComparator.sort(initializers);
 		for (WebApplicationInitializer initializer : initializers) {

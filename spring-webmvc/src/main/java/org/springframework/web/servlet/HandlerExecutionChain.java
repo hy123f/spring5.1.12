@@ -32,7 +32,7 @@ import org.springframework.util.ObjectUtils;
 /**
  * Handler execution chain, consisting of handler object and any handler interceptors.
  * Returned by HandlerMapping's {@link HandlerMapping#getHandler} method.
- *
+ *  处理器执行链由处理器对象和拦截器组成
  * @author Juergen Hoeller
  * @since 20.06.2003
  * @see HandlerInterceptor
@@ -41,13 +41,13 @@ public class HandlerExecutionChain {
 
 	private static final Log logger = LogFactory.getLog(HandlerExecutionChain.class);
 
-	private final Object handler;
+	private final Object handler;  //处理器对象。  类型一般是  HandlerMethod    public com.action.Result com.action.CarController.selectByPrimaryKey(java.lang.Long)
 
 	@Nullable
-	private HandlerInterceptor[] interceptors;
+	private HandlerInterceptor[] interceptors;  //拦截器数组
 
 	@Nullable
-	private List<HandlerInterceptor> interceptorList;
+	private List<HandlerInterceptor> interceptorList;  //拦截器列表
 
 	private int interceptorIndex = -1;
 
@@ -123,7 +123,7 @@ public class HandlerExecutionChain {
 	}
 
 
-	/**
+	/**  执行已经注册的拦截的 preHandle()方法。如果返回true,则执行链可以执行下一个拦截器的preHandle()方法或 handler 自身。
 	 * Apply preHandle methods of registered interceptors.
 	 * @return {@code true} if the execution chain should proceed with the
 	 * next interceptor or the handler itself. Else, DispatcherServlet assumes
@@ -144,7 +144,7 @@ public class HandlerExecutionChain {
 		return true;
 	}
 
-	/**
+	/** 执行已经注册的拦截器 postHandle()方法。
 	 * Apply postHandle methods of registered interceptors.
 	 */
 	void applyPostHandle(HttpServletRequest request, HttpServletResponse response, @Nullable ModelAndView mv)
@@ -159,7 +159,7 @@ public class HandlerExecutionChain {
 		}
 	}
 
-	/**
+	/**  这个方法只会执行preHandle()方法已经成功执行并且返回true的拦截器中的postHandle()方法。
 	 * Trigger afterCompletion callbacks on the mapped HandlerInterceptors.
 	 * Will just invoke afterCompletion for all interceptors whose preHandle invocation
 	 * has successfully completed and returned true.
