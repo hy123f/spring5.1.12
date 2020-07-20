@@ -70,16 +70,16 @@ import org.springframework.util.StringUtils;
  */
 public class DefaultSingletonBeanRegistry extends SimpleAliasRegistry implements SingletonBeanRegistry {
 
-	/** Cache of singleton objects: bean name to bean instance. */
+	/** Cache of singleton objects: bean name to bean instance.单例对象缓存: beanName -> beanInstance. 存放创建完成的bean  */
 	private final Map<String, Object> singletonObjects = new ConcurrentHashMap<>(256);
 
-	/** Cache of singleton factories: bean name to ObjectFactory. */
+	/** Cache of singleton factories: bean name to ObjectFactory.单例工厂缓存: beanName -> ObjectFactory. */
 	private final Map<String, ObjectFactory<?>> singletonFactories = new HashMap<>(16);
 
-	/** Cache of early singleton objects: bean name to bean instance. */
+	/** Cache of early singleton objects: bean name to bean instance.  早期单例对象缓存: beanName -> beanInstance. 已经实例化但是还没有创建完成的单例bean被放到这里面，其目的是用来检测循环引用*/
 	private final Map<String, Object> earlySingletonObjects = new HashMap<>(16);
 
-	/** Set of registered singletons, containing the bean names in registration order. */
+	/** Set of registered singletons, containing the bean names in registration order.已经注册的bean放在这里. */
 	private final Set<String> registeredSingletons = new LinkedHashSet<>(256);
 
 	/** Names of beans that are currently in creation. */
@@ -103,10 +103,10 @@ public class DefaultSingletonBeanRegistry extends SimpleAliasRegistry implements
 	/** Map between containing bean names: bean name to Set of bean names that the bean contains. */
 	private final Map<String, Set<String>> containedBeanMap = new ConcurrentHashMap<>(16);
 
-	/** Map between dependent bean names: bean name to Set of dependent bean names. */
+	/** Map between dependent bean names: bean name to Set of dependent bean names. 别人依赖我：key=我，value=依赖我的人 */
 	private final Map<String, Set<String>> dependentBeanMap = new ConcurrentHashMap<>(64);
 
-	/** Map between depending bean names: bean name to Set of bean names for the bean's dependencies. */
+	/** Map between depending bean names: bean name to Set of bean names for the bean's dependencies. 我依赖别人：key=我，value=我依赖的人*/
 	private final Map<String, Set<String>> dependenciesForBeanMap = new ConcurrentHashMap<>(64);
 
 
@@ -169,26 +169,28 @@ public class DefaultSingletonBeanRegistry extends SimpleAliasRegistry implements
 	 * <p>Checks already instantiated singletons and also allows for an early
 	 * reference to a currently created singleton (resolving a circular reference).
 	 * @param beanName the name of the bean to look for
-	 * @param allowEarlyReference whether early references should be created or not
-	 * @return the registered singleton object, or {@code null} if none found
+	 * // 根据名称找到注册的(原始)单例对象。
+	 * // 检查已经实例化的单例并允许对当前单例的早期引用(解析循环引用)。
+	 * hyf  循环依赖
+	 * 获取过程很简单：先去缓存中寻找，缓存中没有去早期缓存中找，早期缓存没有则获取单例工厂，利用工厂方法获取实例，并添加到早期缓存中，同时移除工厂缓存中的bean。最后返回。 对于Spring解决循环依赖的问题： Spring只能解决单例模式下的Setter循环依赖，Spring不能解决prototype作用域的bean之间的循环依赖。 Spring在获取ClassA的实例时，不等ClassA完成创建就将其曝光加入正在创建的bean缓存中。 在解析ClassA的属性时，又发现依赖于ClassB，再次去获取ClassB，当解析ClassB的属性时，又发现需要ClassA的属性， 但此时的ClassA已经被提前曝光加入了正在创建的bean的缓存中，则无需创建新的的ClassA的实例，直接从缓存中获取即可。从而解决循环依赖问题。 另外：根据代码逻辑不难发现，ClassA实例化的时候发现需要依赖ClassB，于是把ClassA先缓存起来，去实例化ClassB。也就是说，优先初始化最底层对象。
 	 */
-	@Nullable
+	@Nullable//这其中涉及了三个缓存
 	protected Object getSingleton(String beanName, boolean allowEarlyReference) {
-		Object singletonObject = this.singletonObjects.get(beanName);
-		if (singletonObject == null && isSingletonCurrentlyInCreation(beanName)) {
-			synchronized (this.singletonObjects) {
+		Object singletonObject = this.singletonObjects.get(beanName); // 这里获得的可能是bean也可能是FactoryBean
+		if (singletonObject == null && isSingletonCurrentlyInCreation(beanName)) {// 如果没有获取到并且发现当前bean正在创建
+			synchronized (this.singletonObjects) {// 从早期单例对象缓存中尝试获取，有的话返回
 				singletonObject = this.earlySingletonObjects.get(beanName);
-				if (singletonObject == null && allowEarlyReference) {
-					ObjectFactory<?> singletonFactory = this.singletonFactories.get(beanName);
+				if (singletonObject == null && allowEarlyReference) { // 如果从早期单例对象缓存中没有获取的，并且允许早期依赖
+					ObjectFactory<?> singletonFactory = this.singletonFactories.get(beanName); // 则获取单例工厂
 					if (singletonFactory != null) {
-						singletonObject = singletonFactory.getObject();
-						this.earlySingletonObjects.put(beanName, singletonObject);
-						this.singletonFactories.remove(beanName);
+						singletonObject = singletonFactory.getObject();// 用工厂方法创建实例
+						this.earlySingletonObjects.put(beanName, singletonObject);// 放进早期单例对象缓存中
+						this.singletonFactories.remove(beanName); // 移除工厂缓存中的bean
 					}
 				}
 			}
 		}
-		return singletonObject;
+		return singletonObject;// 只要获取到，即返回
 	}
 
 	/**
@@ -391,21 +393,23 @@ public class DefaultSingletonBeanRegistry extends SimpleAliasRegistry implements
 	/**
 	 * Register a dependent bean for the given bean,
 	 * to be destroyed before the given bean is destroyed.
-	 * @param beanName the name of the bean
+	 * @param beanName the name of the bean// beanName-被依赖者；dependentBeanName-依赖者
 	 * @param dependentBeanName the name of the dependent bean
 	 */
 	public void registerDependentBean(String beanName, String dependentBeanName) {
 		String canonicalName = canonicalName(beanName);
 
-		synchronized (this.dependentBeanMap) {
+		synchronized (this.dependentBeanMap) {// 别人依赖我：key=beanName，value=Set(dependentBeanName)
 			Set<String> dependentBeans =
 					this.dependentBeanMap.computeIfAbsent(canonicalName, k -> new LinkedHashSet<>(8));
 			if (!dependentBeans.add(dependentBeanName)) {
 				return;
 			}
 		}
-
-		synchronized (this.dependenciesForBeanMap) {
+//		dependentBeanMap：dependent【依赖】Bean【我】Map，key是被依赖者，value是依赖者
+//		dependenciesForBeanMap：dependencies【依赖项】For【给】Bean【我】Map，key是依赖者，value是被依赖者
+//		不知道我这样解释能不能明白这个关系？
+		synchronized (this.dependenciesForBeanMap) {// 我依赖别人：key=dependentBeanName，value=Set(beanName)
 			Set<String> dependenciesForBean =
 					this.dependenciesForBeanMap.computeIfAbsent(dependentBeanName, k -> new LinkedHashSet<>(8));
 			dependenciesForBean.add(canonicalName);

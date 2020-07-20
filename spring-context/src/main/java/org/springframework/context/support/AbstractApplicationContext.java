@@ -931,7 +931,7 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 	 * on JVM shutdown unless it has already been closed at that time.
 	 * <p>Delegates to {@code doClose()} for the actual closing procedure.
 	 * @see Runtime#addShutdownHook
-	 * @see #close()
+	 * @see #close()  ÓÅÑÅÍ£»ú¡£
 	 * @see #doClose()
 	 */
 	@Override
@@ -1120,7 +1120,7 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 	@Override
 	public <T> T getBean(Class<T> requiredType) throws BeansException {
 		assertBeanFactoryActive();
-		return getBeanFactory().getBean(requiredType);
+		return getBeanFactory().getBean(requiredType);  //ConfigurableListableBeanFactory 
 	}
 
 	@Override

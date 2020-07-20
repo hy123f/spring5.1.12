@@ -76,7 +76,7 @@ public abstract class BeanFactoryUtils {
 	 * prefix (if any, also stripping repeated factory prefixes if found).
 	 * @param name the name of the bean
 	 * @return the transformed name
-	 * @see BeanFactory#FACTORY_BEAN_PREFIX
+	 * // 返回实际的bean名称，去掉工厂的取消引用前缀(如果有，也去掉重复的工厂前缀)   比如&&&&，是不生效的。
 	 */
 	public static String transformedBeanName(String name) {
 		Assert.notNull(name, "'name' must not be null");
@@ -86,7 +86,7 @@ public abstract class BeanFactoryUtils {
 		return transformedBeanNameCache.computeIfAbsent(name, beanName -> {
 			do {
 				beanName = beanName.substring(BeanFactory.FACTORY_BEAN_PREFIX.length());
-			}
+			}// 只要发现beanName以&开头，就会去除&，所以你就算写一百个&也不会有错误。
 			while (beanName.startsWith(BeanFactory.FACTORY_BEAN_PREFIX));
 			return beanName;
 		});

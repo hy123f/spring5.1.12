@@ -500,15 +500,15 @@ public class DispatcherServlet extends FrameworkServlet {
 	 * <p>May be overridden in subclasses in order to initialize further strategy objects.
 	 */
 	protected void initStrategies(ApplicationContext context) {
-		initMultipartResolver(context);
-		initLocaleResolver(context);
-		initThemeResolver(context);
-		initHandlerMappings(context);
-		initHandlerAdapters(context);
-		initHandlerExceptionResolvers(context);
-		initRequestToViewNameTranslator(context);
-		initViewResolvers(context);
-		initFlashMapManager(context);
+		initMultipartResolver(context);//（文件处理器）用于处理上传请求。处理方法是将普通的request包装成MultipartHttpServletRequest，后者可以直接调用getFile方法获取File。
+		initLocaleResolver(context);//（当前环境处理器）这就相当于配置数据库的方言一样，有了这个就可以对不同区域的用户显示不同的结果。SpringMVC主要有两个地方用到了Locale：一是ViewResolver视图解析的时候；二是用到国际化资源或者主题的时候。
+		initThemeResolver(context);//（主题处理器）用于解析主题。SpringMVC中一个主题对应一个properties文件，里面存放着跟当前主题相关的所有资源，如图片、css样式等。SpringMVC的主题也支持国际化。
+		initHandlerMappings(context);//（处理器映射器）这就是根据用户请求的资源uri来查找Handler的。在SpringMVC中会有很多请求，每个请求都需要一个Handler处理，具体接收到一个请求之后使用哪个Handler进行处理呢
+		initHandlerAdapters(context);//（处理器适配器）从名字上看，它就是一个适配器。Servlet需要的处理方法的结构却是固定的，都是以request和response为参数的方法。如何让固定的Servlet处理方法调用灵活的Handler来进行处理呢？这就是HandlerAdapters要做的事情。
+		initHandlerExceptionResolvers(context);//（异常处理器）其它组件都是用来干活的。在干活的过程中难免会出现问题，出问题后怎么办呢？这就要有一个专门的角色对异常情况进行处理，在SpringMVC中就是HandlerExceptionResolver。
+		initRequestToViewNameTranslator(context);//（视图名称翻译器）有的Handler处理完后并没有设置View也没有设置ViewName，这时就需要从request获取ViewName了，如何从request中获取ViewName就是RequestToViewNameTranslator要做的事情了。
+		initViewResolvers(context);//（页面渲染处理器）ViewResolver用来将String类型的视图名和Locale解析为View类型的视图。View是用来渲染页面的，也就是将程序返回的参数填入模板里，生成html（也可能是其它类型）文件。
+		initFlashMapManager(context);//（参数传递管理器）用来管理FlashMap的，FlashMap主要用在redirect重定向中传递参数。
 	}
 
 	/**

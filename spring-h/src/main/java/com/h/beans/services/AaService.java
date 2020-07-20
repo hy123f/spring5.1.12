@@ -6,8 +6,8 @@ import org.springframework.stereotype.Service;
 @Service
 public class AaService {
 	
-	@Autowired
-	private AbService abService;
+//	@Autowired
+//	private AbService abService;
 
 	public AaService() {
 		System.out.println("AaService的构造方法执行了。");

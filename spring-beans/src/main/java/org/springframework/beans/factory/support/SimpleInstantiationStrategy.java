@@ -56,15 +56,18 @@ public class SimpleInstantiationStrategy implements InstantiationStrategy {
 		return currentlyInvokedFactoryMethod.get();
 	}
 
-
+	/**
+	 * 1. 根据情况选取合适的创建策略 　　☆ 利用Bean定义中的instanceSupplier获取Bean 　　☆ 利用指定的工厂方法名称实例化Bean 　　☆ 利用构造方法自动装配实例化Bean 　　☆ 简单的使用无参构造函数实例化Bean，这个也是默认的处理方式 2. 将实例封装成一个包装类 　　☆ 通过反射方法实例化Bean 　　☆ 新建 & 初始化Bean的包装类
+	 * 另外：我看了下利用工厂方法创建和构造方法自动装配两种方式，除了过程比较复杂，其实例化的时候调用的都是org.springframework.beans.factory.support.ConstructorResolver#instantiate(java.lang.String, org.springframework.beans.factory.support.RootBeanDefinition, java.lang.Object, java.lang.reflect.Method, java.lang.Object[]) 进而调用org.springframework.beans.factory.support.SimpleInstantiationStrategy#instantiate(org.springframework.beans.factory.support.RootBeanDefinition, java.lang.String, org.springframework.beans.factory.BeanFactory, java.lang.Object, java.lang.reflect.Method, java.lang.Object...) 刚好和上面对上，实例化都是利用反射（当然这样说也不是很严谨），因为实例化策略的实现有两个，除了反射还有CGLIB，如图：
+	 */
 	@Override
 	public Object instantiate(RootBeanDefinition bd, @Nullable String beanName, BeanFactory owner) {
-		// Don't override the class with CGLIB if no overrides.
+		// Don't override the class with CGLIB if no overrides. // 如果没有覆盖的方法，则不使用CGLIB覆盖
 		if (!bd.hasMethodOverrides()) {
 			Constructor<?> constructorToUse;
 			synchronized (bd.constructorArgumentLock) {
 				constructorToUse = (Constructor<?>) bd.resolvedConstructorOrFactoryMethod;
-				if (constructorToUse == null) {
+				if (constructorToUse == null) {// 获取Class对象
 					final Class<?> clazz = bd.getBeanClass();
 					if (clazz.isInterface()) {
 						throw new BeanInstantiationException(clazz, "Specified class is an interface");
@@ -74,20 +77,22 @@ public class SimpleInstantiationStrategy implements InstantiationStrategy {
 							constructorToUse = AccessController.doPrivileged(
 									(PrivilegedExceptionAction<Constructor<?>>) clazz::getDeclaredConstructor);
 						}
-						else {
+						else { // 获取Constructor对象
 							constructorToUse = clazz.getDeclaredConstructor();
-						}
+						} // 给RootBeanDefinition设置已解析的构造函数或工厂方法
 						bd.resolvedConstructorOrFactoryMethod = constructorToUse;
 					}
 					catch (Throwable ex) {
 						throw new BeanInstantiationException(clazz, "No default constructor found", ex);
 					}
 				}
-			}
+			}// 工具类，实例化Bean（绕了这么多，真正干活的是这个方法） hyf
 			return BeanUtils.instantiateClass(constructorToUse);
 		}
 		else {
-			// Must generate CGLIB subclass.
+			// Must generate CGLIB subclass. 
+			// 子类可以覆盖这个方法，如果子类可以用给定的RootBeanDefinition中指定的方法注入实例化一个对象。实现该方法的目的是抛出UnsupportedOperationException。
+	        // 实例化应该使用无参数的构造函数。
 			return instantiateWithMethodInjection(bd, beanName, owner);
 		}
 	}
@@ -133,7 +138,7 @@ public class SimpleInstantiationStrategy implements InstantiationStrategy {
 		throw new UnsupportedOperationException("Method Injection not supported in SimpleInstantiationStrategy");
 	}
 
-	@Override
+	@Override/** 工厂方式，最后执行这个方法。 */
 	public Object instantiate(RootBeanDefinition bd, @Nullable String beanName, BeanFactory owner,
 			@Nullable Object factoryBean, final Method factoryMethod, Object... args) {
 
@@ -151,7 +156,7 @@ public class SimpleInstantiationStrategy implements InstantiationStrategy {
 			Method priorInvokedFactoryMethod = currentlyInvokedFactoryMethod.get();
 			try {
 				currentlyInvokedFactoryMethod.set(factoryMethod);
-				Object result = factoryMethod.invoke(factoryBean, args);
+				Object result = factoryMethod.invoke(factoryBean, args);/** 基于动态代理的实现 */
 				if (result == null) {
 					result = new NullBean();
 				}

@@ -28,7 +28,8 @@ import org.springframework.lang.Nullable;
  *
  * <p>This is pulled out into a strategy as various approaches are possible,
  * including using CGLIB to create subclasses on the fly to support Method Injection.
- *
+ * 实例化策略
+ * org.springframework.beans.factory.support.InstantiationStrategy负责根据BeanDefinition对象创建一个Bean实例。Spring之所以将实例化Bean的工作通过一个策略接口进行描述，是为了可以方便地采用不同地实例化策略，以满足不同的引用需求，如通过CGLib类库为Bean动态创建子类在进行实例化。
  * @author Rod Johnson
  * @author Juergen Hoeller
  * @since 1.1

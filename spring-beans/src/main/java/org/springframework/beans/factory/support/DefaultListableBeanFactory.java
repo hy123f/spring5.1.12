@@ -407,8 +407,8 @@ public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFacto
 			}
 		};
 	}
-
-	@Nullable//这个方法呢，主要调用了resolveNamedBean方法，利用返回持有名称和实例的容器获得bean实例。不是核心方法。
+	/** //这个方法呢，主要调用了resolveNamedBean方法，利用返回持有名称和实例的容器获得bean实例。不是核心方法。 */
+	@Nullable
 	private <T> T resolveBean(ResolvableType requiredType, @Nullable Object[] args, boolean nonUniqueAsNull) {
 		NamedBeanHolder<T> namedBean = resolveNamedBean(requiredType, args, nonUniqueAsNull);// 根据传入的ResolvableType，返回一个NamedBeanHolder（一个持有bean名称和bean实例的容器）
 		if (namedBean != null) {// 如果namedBean不为空，则直接返回实例
@@ -465,7 +465,7 @@ public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFacto
 	public String[] getBeanNamesForType(ResolvableType type) {
 		Class<?> resolved = type.resolve();
 		if (resolved != null && !type.hasGenerics()) {// 如果resolved不为空，并且不是泛型参数
-			return getBeanNamesForType(resolved, true, true);// 虽然调用了这个方法，但是这个方法实际上调用的也是doGetBeanNamesForType
+			return getBeanNamesForType(resolved, true, true);// 虽然调用了这个方法，但是这个方法实际上调用的也是doGetBeanNamesForType,下面这个方法。
 		}
 		else {
 			return doGetBeanNamesForType(type, true, true);
@@ -1104,7 +1104,7 @@ public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFacto
 	}
 
 	@SuppressWarnings("unchecked")
-	@Nullable
+	@Nullable/** 1. 根据传入的类型获取bean的所有名称。 2. 过滤候选bean名称。 3. 如果bean名称只有一个，那么直接调用AbstractBeanFactory里的doGetBean进行实例化并返回。 3. 如果bean名称有多个，则选出主要候选名称或者最高优先级的名称来帮助实例化。如果没有选出可用的名称，则抛出bean定义冲突异常。 */
 	private <T> NamedBeanHolder<T> resolveNamedBean(
 			ResolvableType requiredType, @Nullable Object[] args, boolean nonUniqueAsNull) throws BeansException {
 

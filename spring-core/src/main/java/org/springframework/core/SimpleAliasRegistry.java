@@ -30,11 +30,11 @@ import org.springframework.util.StringUtils;
 import org.springframework.util.StringValueResolver;
 
 /**
- * Simple implementation of the {@link AliasRegistry} interface.
+ * Simple implementation of the {@link AliasRegistry} interface.接口的简单实现。
  * Serves as base class for
  * {@link org.springframework.beans.factory.support.BeanDefinitionRegistry}
  * implementations.
- *
+ * 别名的实现类，很多公共框架都有类似的实现。
  * @author Juergen Hoeller
  * @since 2.5.2
  */
@@ -209,13 +209,13 @@ public class SimpleAliasRegistry implements AliasRegistry {
 	/**
 	 * Determine the raw name, resolving aliases to canonical names.
 	 * @param name the user-specified name
-	 * @return the transformed name
+	 * // 确定原始名称，将别名解析为规范名称。
 	 */
 	public String canonicalName(String name) {
 		String canonicalName = name;
 		// Handle aliasing...
 		String resolvedName;
-		do {
+		do {// 根据传入的名称，从别名Map里查询
 			resolvedName = this.aliasMap.get(canonicalName);
 			if (resolvedName != null) {
 				canonicalName = resolvedName;

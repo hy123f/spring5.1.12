@@ -16,7 +16,7 @@
 
 package org.springframework.core;
 
-/**
+/**管理别名的通用接口。作为超级接口
  * Common interface for managing aliases. Serves as super-interface for
  * {@link org.springframework.beans.factory.support.BeanDefinitionRegistry}.
  *
