@@ -26,7 +26,7 @@ import org.springframework.beans.factory.config.BeanDefinition;
 
 /**
  * Indicates the 'role' hint for a given bean.
- *
+ * 指示给定bean的“role”提示。
  * <p>May be used on any class directly or indirectly annotated with
  * {@link org.springframework.stereotype.Component} or on methods
  * annotated with {@link Bean}.

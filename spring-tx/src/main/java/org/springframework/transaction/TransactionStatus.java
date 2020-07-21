@@ -30,7 +30,7 @@ import java.io.Flushable;
  * is only available if supported by the underlying transaction manager.
  *
  * @author Juergen Hoeller
- * @since 27.03.2003
+ * @since 27.03.2003  事务状态顶级接口：其实现类封装事务状态信息
  * @see #setRollbackOnly()
  * @see PlatformTransactionManager#getTransaction
  * @see org.springframework.transaction.support.TransactionCallback#doInTransaction

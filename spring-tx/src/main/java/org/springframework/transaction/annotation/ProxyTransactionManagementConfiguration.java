@@ -34,7 +34,7 @@ import org.springframework.transaction.interceptor.TransactionInterceptor;
  * @see EnableTransactionManagement
  * @see TransactionManagementConfigurationSelector
  */
-@Configuration
+@Configuration//说明这是一个配置类，他里面的@Bean的方法都会被注入到Spring的容器中
 public class ProxyTransactionManagementConfiguration extends AbstractTransactionManagementConfiguration {
 
 	@Bean(name = TransactionManagementConfigUtils.TRANSACTION_ADVISOR_BEAN_NAME)
@@ -51,7 +51,7 @@ public class ProxyTransactionManagementConfiguration extends AbstractTransaction
 
 	@Bean
 	@Role(BeanDefinition.ROLE_INFRASTRUCTURE)
-	public TransactionAttributeSource transactionAttributeSource() {
+	public TransactionAttributeSource transactionAttributeSource() {//让上下两个方法直接调用调用。
 		return new AnnotationTransactionAttributeSource();
 	}
 

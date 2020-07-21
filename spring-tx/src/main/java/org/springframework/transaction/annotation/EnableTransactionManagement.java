@@ -152,8 +152,8 @@ import org.springframework.core.Ordered;
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
-@Import(TransactionManagementConfigurationSelector.class)
-public @interface EnableTransactionManagement {
+@Import(TransactionManagementConfigurationSelector.class)//发现是不是惊人的相似，它通过@Import注解引入一个类，我们再跟进
+public @interface EnableTransactionManagement {//有三个默认值
 
 	/**
 	 * Indicate whether subclass-based (CGLIB) proxies are to be created ({@code true}) as

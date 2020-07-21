@@ -290,9 +290,9 @@ public abstract class TransactionAspectSupport implements BeanFactoryAware, Init
 
 			Object retVal;
 			try {
-				// This is an around advice: Invoke the next interceptor in the chain.
+				// This is an around advice: Invoke the next interceptor in the chain. 这是一个around建议：调用链中的下一个拦截器。
 				// This will normally result in a target object being invoked.
-				retVal = invocation.proceedWithInvocation();
+				retVal = invocation.proceedWithInvocation();//执行对应的方法。
 			}
 			catch (Throwable ex) {
 				// target invocation exception
@@ -455,7 +455,7 @@ public abstract class TransactionAspectSupport implements BeanFactoryAware, Init
 	 * tell if there was a transaction created.
 	 * @see #getTransactionAttributeSource()
 	 */
-	@SuppressWarnings("serial")
+	@SuppressWarnings("serial")/** 创建事务方法。 */
 	protected TransactionInfo createTransactionIfNecessary(@Nullable PlatformTransactionManager tm,
 			@Nullable TransactionAttribute txAttr, final String joinpointIdentification) {
 
@@ -548,7 +548,7 @@ public abstract class TransactionAspectSupport implements BeanFactoryAware, Init
 						"] after exception: " + ex);
 			}
 			if (txInfo.transactionAttribute != null && txInfo.transactionAttribute.rollbackOn(ex)) {
-				try {
+				try {//回滚
 					txInfo.getTransactionManager().rollback(txInfo.getTransactionStatus());
 				}
 				catch (TransactionSystemException ex2) {
@@ -564,7 +564,7 @@ public abstract class TransactionAspectSupport implements BeanFactoryAware, Init
 			else {
 				// We don't roll back on this exception.
 				// Will still roll back if TransactionStatus.isRollbackOnly() is true.
-				try {
+				try {//提交
 					txInfo.getTransactionManager().commit(txInfo.getTransactionStatus());
 				}
 				catch (TransactionSystemException ex2) {

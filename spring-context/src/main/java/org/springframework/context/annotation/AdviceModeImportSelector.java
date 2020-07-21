@@ -30,7 +30,7 @@ import org.springframework.util.Assert;
  * annotations).
  *
  * @author Chris Beams
- * @since 3.1
+ * @since 3.1  原来实现了ImportSelect的接口
  * @param <A> annotation containing {@linkplain #getAdviceModeAttributeName() AdviceMode attribute}
  */
 public abstract class AdviceModeImportSelector<A extends Annotation> implements ImportSelector {
@@ -92,7 +92,7 @@ public abstract class AdviceModeImportSelector<A extends Annotation> implements 
 	 * @return array containing classes to import (empty array if none;
 	 * {@code null} if the given {@code AdviceMode} is unknown)
 	 */
-	@Nullable
+	@Nullable//子类进行了实现。
 	protected abstract String[] selectImports(AdviceMode adviceMode);
 
 }

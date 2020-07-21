@@ -37,8 +37,8 @@ import org.springframework.lang.Nullable;
  * which can serve as an implementation guide for other transaction strategies.
  *
  * @author Rod Johnson
- * @author Juergen Hoeller
- * @since 16.05.2003
+ * @author Juergen Hoeller  
+ * @since 16.05.2003  事务管理器顶级接口：各持久化框架要想接入Spring的事务管理，必须自行提供该接口实现
  * @see org.springframework.transaction.support.TransactionTemplate
  * @see org.springframework.transaction.interceptor.TransactionInterceptor
  */

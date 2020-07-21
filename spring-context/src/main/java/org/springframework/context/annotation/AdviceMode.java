@@ -29,12 +29,12 @@ package org.springframework.context.annotation;
 public enum AdviceMode {
 
 	/**
-	 * JDK proxy-based advice.
+	 * JDK proxy-based advice.  JDK动态代理
 	 */
 	PROXY,
 
 	/**
-	 * AspectJ weaving-based advice.
+	 * AspectJ weaving-based advice.  AspectJ代理
 	 */
 	ASPECTJ
 

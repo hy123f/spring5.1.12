@@ -38,7 +38,7 @@ import org.springframework.lang.Nullable;
  * resources within the application, such as a Hibernate {@code Session}.
  *
  * @author Juergen Hoeller
- * @since 08.05.2003
+ * @since 08.05.2003 事务的属性顶级接口：其实现类封装事务隔离级别、事务传播性、只读性等信息 
  * @see PlatformTransactionManager#getTransaction(TransactionDefinition)
  * @see org.springframework.transaction.support.DefaultTransactionDefinition
  * @see org.springframework.transaction.interceptor.TransactionAttribute

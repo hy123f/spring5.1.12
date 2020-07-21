@@ -57,7 +57,7 @@ public abstract class AopConfigUtils {
 	private static final List<Class<?>> APC_PRIORITY_LIST = new ArrayList<>(3);
 
 	static {
-		// Set up the escalation list...
+		// Set up the escalation list...  设置优先级
 		APC_PRIORITY_LIST.add(InfrastructureAdvisorAutoProxyCreator.class);
 		APC_PRIORITY_LIST.add(AspectJAwareAdvisorAutoProxyCreator.class);
 		APC_PRIORITY_LIST.add(AnnotationAwareAspectJAutoProxyCreator.class);
@@ -69,7 +69,7 @@ public abstract class AopConfigUtils {
 		return registerAutoProxyCreatorIfNecessary(registry, null);
 	}
 
-	@Nullable
+	@Nullable/** 和下面的方法类似  Transactional————InfrastructureAdvisorAutoProxyCreator.class   所以在到这里我们会发现我们的事务管理其实和AOP几乎大部分一模一样的，都是先注册一个类，然后也是通过对我们的业务类创建后初始化时，在后置处理器中对其进行增强处理的，也是通过生成代理类，有兴趣的话可以看一下我们的之前对AOP底层源码分析的博客。*/
 	public static BeanDefinition registerAutoProxyCreatorIfNecessary(
 			BeanDefinitionRegistry registry, @Nullable Object source) {
 
@@ -81,7 +81,7 @@ public abstract class AopConfigUtils {
 		return registerAspectJAutoProxyCreatorIfNecessary(registry, null);
 	}
 
-	@Nullable
+	@Nullable/** 和下面的方法类似  AOP————AspectJAwareAdvisorAutoProxyCreator.class*/
 	public static BeanDefinition registerAspectJAutoProxyCreatorIfNecessary(
 			BeanDefinitionRegistry registry, @Nullable Object source) {
 
@@ -93,7 +93,7 @@ public abstract class AopConfigUtils {
 		return registerAspectJAnnotationAutoProxyCreatorIfNecessary(registry, null);
 	}
 
-	@Nullable
+	@Nullable/** 和下面的方法类似 */
 	public static BeanDefinition registerAspectJAnnotationAutoProxyCreatorIfNecessary(
 			BeanDefinitionRegistry registry, @Nullable Object source) {
 
@@ -125,7 +125,7 @@ public abstract class AopConfigUtils {
 			if (!cls.getName().equals(apcDefinition.getBeanClassName())) {
 				int currentPriority = findPriorityForClass(apcDefinition.getBeanClassName());
 				int requiredPriority = findPriorityForClass(cls);
-				if (currentPriority < requiredPriority) {
+				if (currentPriority < requiredPriority) {  //优先级，只是注册一个。
 					apcDefinition.setBeanClassName(cls.getName());
 				}
 			}
@@ -136,7 +136,7 @@ public abstract class AopConfigUtils {
 		beanDefinition.setSource(source);
 		beanDefinition.getPropertyValues().add("order", Ordered.HIGHEST_PRECEDENCE);
 		beanDefinition.setRole(BeanDefinition.ROLE_INFRASTRUCTURE);
-		registry.registerBeanDefinition(AUTO_PROXY_CREATOR_BEAN_NAME, beanDefinition);
+		registry.registerBeanDefinition(AUTO_PROXY_CREATOR_BEAN_NAME, beanDefinition);//此处注册进去的id是相同的，  （如果即开启了AOP，也开启了事务，那会注册哪一个类）
 		return beanDefinition;
 	}
 

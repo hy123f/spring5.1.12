@@ -1,8 +1,5 @@
 package design.c;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
 import design.a.HttpServle;
 
 public abstract class FrameworkServle extends HttpServle{
