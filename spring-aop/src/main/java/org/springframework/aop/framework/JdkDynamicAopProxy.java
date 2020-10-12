@@ -109,7 +109,7 @@ final class JdkDynamicAopProxy implements AopProxy, InvocationHandler, Serializa
 
 
 	@Override
-	public Object getProxy() {
+	public Object getProxy() {//跟进到创建动态代理（注意这个是jdk的，cglib同理）方法，getProxy(classLoader)：
 		return getProxy(ClassUtils.getDefaultClassLoader());
 	}
 
@@ -120,7 +120,7 @@ final class JdkDynamicAopProxy implements AopProxy, InvocationHandler, Serializa
 		}
 		Class<?>[] proxiedInterfaces = AopProxyUtils.completeProxiedInterfaces(this.advised, true);
 		findDefinedEqualsAndHashCodeMethods(proxiedInterfaces);
-		return Proxy.newProxyInstance(classLoader, proxiedInterfaces, this);
+		return Proxy.newProxyInstance(classLoader, proxiedInterfaces, this);//创建jdk动态代理
 	}
 
 	/**
@@ -157,19 +157,19 @@ final class JdkDynamicAopProxy implements AopProxy, InvocationHandler, Serializa
 		Object oldProxy = null;
 		boolean setProxyContext = false;
 
-		TargetSource targetSource = this.advised.targetSource;
+		TargetSource targetSource = this.advised.targetSource;//获取到我们的目标对象
 		Object target = null;
 
 		try {
-			if (!this.equalsDefined && AopUtils.isEqualsMethod(method)) {
+			if (!this.equalsDefined && AopUtils.isEqualsMethod(method)) {//若是equals方法不需要代理
 				// The target does not implement the equals(Object) method itself.
 				return equals(args[0]);
 			}
-			else if (!this.hashCodeDefined && AopUtils.isHashCodeMethod(method)) {
+			else if (!this.hashCodeDefined && AopUtils.isHashCodeMethod(method)) {//若是hashCode方法不需要代理
 				// The target does not implement the hashCode() method itself.
 				return hashCode();
 			}
-			else if (method.getDeclaringClass() == DecoratingProxy.class) {
+			else if (method.getDeclaringClass() == DecoratingProxy.class) { //若是DecoratingProxy也不要拦截器执行
 				// There is only getDecoratedClass() declared -> dispatch to proxy config.
 				return AopProxyUtils.ultimateTargetClass(this.advised);
 			}
@@ -180,36 +180,41 @@ final class JdkDynamicAopProxy implements AopProxy, InvocationHandler, Serializa
 			}
 
 			Object retVal;
-
+			
+			 /**
+             * 这个配置是暴露我们的代理对象到线程变量中，需要搭配@EnableAspectJAutoProxy(exposeProxy = true)一起使用
+　　　　　　　 	 * 比如在目标对象方法中再次获取代理对象可以使用这个AopContext.currentProxy()
+             * 还有的就是事务方法调用事务方法的时候也是用到这个
+             */
 			if (this.advised.exposeProxy) {
-				// Make invocation available if necessary.
+				// Make invocation available if necessary. //把我们的代理对象暴露到线程变量中
 				oldProxy = AopContext.setCurrentProxy(proxy);
 				setProxyContext = true;
 			}
 
 			// Get as late as possible to minimize the time we "own" the target,
 			// in case it comes from a pool.
-			target = targetSource.getTarget();
-			Class<?> targetClass = (target != null ? target.getClass() : null);
+			target = targetSource.getTarget();//获取我们的目标对象
+			Class<?> targetClass = (target != null ? target.getClass() : null);//获取我们目标对象的class
 
-			// Get the interception chain for this method.
+			// Get the interception chain for this method.//把aop的advisor转化为拦截器链
 			List<Object> chain = this.advised.getInterceptorsAndDynamicInterceptionAdvice(method, targetClass);
 
 			// Check whether we have any advice. If we don't, we can fallback on direct
 			// reflective invocation of the target, and avoid creating a MethodInvocation.
-			if (chain.isEmpty()) {
+			if (chain.isEmpty()) {//如果拦截器链为空
 				// We can skip creating a MethodInvocation: just invoke the target directly
 				// Note that the final invoker must be an InvokerInterceptor so we know it does
 				// nothing but a reflective operation on the target, and no hot swapping or fancy proxying.
-				Object[] argsToUse = AopProxyUtils.adaptArgumentsIfNecessary(method, args);
+				Object[] argsToUse = AopProxyUtils.adaptArgumentsIfNecessary(method, args);//通过反射直接调用执行
 				retVal = AopUtils.invokeJoinpointUsingReflection(target, method, argsToUse);
 			}
 			else {
-				// We need to create a method invocation...
+				// We need to create a method invocation...  //创建一个方法调用对象
 				MethodInvocation invocation =
 						new ReflectiveMethodInvocation(proxy, target, method, args, targetClass, chain);
 				// Proceed to the joinpoint through the interceptor chain.
-				retVal = invocation.proceed();
+				retVal = invocation.proceed();//调用执行
 			}
 
 			// Massage return value if necessary.

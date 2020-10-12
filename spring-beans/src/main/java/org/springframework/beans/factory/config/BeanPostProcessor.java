@@ -27,12 +27,12 @@ import org.springframework.lang.Nullable;
  * bean definitions and apply them to any beans subsequently created.
  * Plain bean factories allow for programmatic registration of post-processors,
  * applying to all beans created through this factory.
- *
+ * 1、实例化----实例化的过程是一个创建Bean的过程，即调用Bean的构造函数，单例的Bean放入单例池中                    2、初始化----初始化的过程是一个赋值的过程，即调用Bean的setter，设置Bean的属性
  * <p>Typically, post-processors that populate beans via marker interfaces
  * or the like will implement {@link #postProcessBeforeInitialization},
  * while post-processors that wrap beans with proxies will normally
  * implement {@link #postProcessAfterInitialization}.
- *
+ *  作用于   初始化  前后
  * @author Juergen Hoeller
  * @since 10.10.2003
  * @see InstantiationAwareBeanPostProcessor

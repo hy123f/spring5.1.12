@@ -24,6 +24,7 @@ public class AopObjectAspect {
 	 * 使用 @Pointcut 来声明切入点表达式. 
 	 * 后面的其他通知直接使用方法名来引用当前的切入点表达式. 
 	 */
+//	@Pointcut("execution(void aop.AopObject.*(..))")
 	@Pointcut("execution(public int aop.AopObject.*(..))")
 	public void pointcut(){}
 	

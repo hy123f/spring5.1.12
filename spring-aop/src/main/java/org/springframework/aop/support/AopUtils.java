@@ -225,31 +225,31 @@ public abstract class AopUtils {
 		if (!pc.getClassFilter().matches(targetClass)) {
 			return false;
 		}
-
+		//通过切点获取到一个方法匹配器对象
 		MethodMatcher methodMatcher = pc.getMethodMatcher();
 		if (methodMatcher == MethodMatcher.TRUE) {
 			// No need to iterate the methods if we're matching any method anyway...
 			return true;
 		}
-
+		// //判断匹配器是不是IntroductionAwareMethodMatcher
 		IntroductionAwareMethodMatcher introductionAwareMethodMatcher = null;
 		if (methodMatcher instanceof IntroductionAwareMethodMatcher) {
 			introductionAwareMethodMatcher = (IntroductionAwareMethodMatcher) methodMatcher;
 		}
-
+		////创建一个集合用于保存targetClass的class对象
 		Set<Class<?>> classes = new LinkedHashSet<>();
-		if (!Proxy.isProxyClass(targetClass)) {
-			classes.add(ClassUtils.getUserClass(targetClass));
+		if (!Proxy.isProxyClass(targetClass)) {// //判断当前class是不是代理的class对象
+			classes.add(ClassUtils.getUserClass(targetClass));////加入到集合中去
 		}
-		classes.addAll(ClassUtils.getAllInterfacesForClassAsSet(targetClass));
+		classes.addAll(ClassUtils.getAllInterfacesForClassAsSet(targetClass));////获取到targetClass所实现的接口的class对象，然后加入到集合中
 
-		for (Class<?> clazz : classes) {
-			Method[] methods = ReflectionUtils.getAllDeclaredMethods(clazz);
-			for (Method method : methods) {
-				if (introductionAwareMethodMatcher != null ?
+		for (Class<?> clazz : classes) {////循环所有的class对象
+			Method[] methods = ReflectionUtils.getAllDeclaredMethods(clazz);//通过class获取到所有的方法
+			for (Method method : methods) {//循环我们的方法
+				if (introductionAwareMethodMatcher != null ?//通过methodMatcher.matches来匹配我们的方法
 						introductionAwareMethodMatcher.matches(method, targetClass, hasIntroductions) :
-						methodMatcher.matches(method, targetClass)) {
-					return true;
+						methodMatcher.matches(method, targetClass)) {//通过方法匹配器进行匹配
+					return true;  //如果该方法返回true就表示匹配，就添加到合适的集合eligibleAdvisors中，
 				}
 			}
 		}
@@ -280,12 +280,12 @@ public abstract class AopUtils {
 	 * @return whether the pointcut can apply on any method
 	 */
 	public static boolean canApply(Advisor advisor, Class<?> targetClass, boolean hasIntroductions) {
-		if (advisor instanceof IntroductionAdvisor) {
+		if (advisor instanceof IntroductionAdvisor) {//判断我们的增强器是否是IntroductionAdvisor
 			return ((IntroductionAdvisor) advisor).getClassFilter().matches(targetClass);
 		}
-		else if (advisor instanceof PointcutAdvisor) {
-			PointcutAdvisor pca = (PointcutAdvisor) advisor;
-			return canApply(pca.getPointcut(), targetClass, hasIntroductions);
+		else if (advisor instanceof PointcutAdvisor) {//判断我们事务的增强器BeanFactoryTransactionAttributeSourceAdvisor是否实现了PointcutAdvisor
+			PointcutAdvisor pca = (PointcutAdvisor) advisor;//转为PointcutAdvisor类型
+			return canApply(pca.getPointcut(), targetClass, hasIntroductions);//找到真正能用的增强器  跟进
 		}
 		else {
 			// It doesn't have a pointcut so we assume it applies.
@@ -293,7 +293,7 @@ public abstract class AopUtils {
 		}
 	}
 
-	/**
+	/** 从候选的通知器中找到合适正在创建的实例对象的通知器方法
 	 * Determine the sublist of the {@code candidateAdvisors} list
 	 * that is applicable to the given class.
 	 * @param candidateAdvisors the Advisors to evaluate
@@ -302,21 +302,21 @@ public abstract class AopUtils {
 	 * (may be the incoming List as-is)
 	 */
 	public static List<Advisor> findAdvisorsThatCanApply(List<Advisor> candidateAdvisors, Class<?> clazz) {
-		if (candidateAdvisors.isEmpty()) {
+		if (candidateAdvisors.isEmpty()) {//若候选的增强器集合为空 直接返回
 			return candidateAdvisors;
 		}
-		List<Advisor> eligibleAdvisors = new ArrayList<>();
-		for (Advisor candidate : candidateAdvisors) {
-			if (candidate instanceof IntroductionAdvisor && canApply(candidate, clazz)) {
+		List<Advisor> eligibleAdvisors = new ArrayList<>();//定义一个合适的增强器集合对象
+		for (Advisor candidate : candidateAdvisors) {//循环我们候选的增强器对象
+			if (candidate instanceof IntroductionAdvisor && canApply(candidate, clazz)) {//判断我们的增强器对象是不是实现了IntroductionAdvisor (很明显我们事务的没有实现 所以不会走下面的逻辑)
 				eligibleAdvisors.add(candidate);
 			}
-		}
+		}//不为空
 		boolean hasIntroductions = !eligibleAdvisors.isEmpty();
-		for (Advisor candidate : candidateAdvisors) {
+		for (Advisor candidate : candidateAdvisors) { //判断我们的增强器对象是不是实现了IntroductionAdvisor (很明显我们事务的没有实现 所以不会走下面的逻辑)
 			if (candidate instanceof IntroductionAdvisor) {
 				// already processed
-				continue;
-			}
+				continue;//在上面已经处理过 ，不需要处理
+			}//真正的判断增强器是否合适当前类型
 			if (canApply(candidate, clazz, hasIntroductions)) {
 				eligibleAdvisors.add(candidate);
 			}

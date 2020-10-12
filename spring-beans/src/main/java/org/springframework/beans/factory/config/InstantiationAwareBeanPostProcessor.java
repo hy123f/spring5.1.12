@@ -37,7 +37,7 @@ import org.springframework.lang.Nullable;
  * {@link BeanPostProcessor} interface as far as possible, or to derive from
  * {@link InstantiationAwareBeanPostProcessorAdapter} in order to be shielded
  * from extensions to this interface.
- *
+ *  主要作用在于目标对象的实例化过程中需要处理的事情，包括实例化对象的前后过程以及实例的属性设置
  * @author Juergen Hoeller
  * @author Rod Johnson
  * @since 1.2

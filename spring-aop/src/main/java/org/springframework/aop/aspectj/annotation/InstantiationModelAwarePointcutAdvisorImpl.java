@@ -79,21 +79,21 @@ final class InstantiationModelAwarePointcutAdvisorImpl
 	@Nullable
 	private Boolean isAfterAdvice;
 
-
+	/** 实例化我们的切面通知对象 */
 	public InstantiationModelAwarePointcutAdvisorImpl(AspectJExpressionPointcut declaredPointcut,
 			Method aspectJAdviceMethod, AspectJAdvisorFactory aspectJAdvisorFactory,
 			MetadataAwareAspectInstanceFactory aspectInstanceFactory, int declarationOrder, String aspectName) {
 
-		this.declaredPointcut = declaredPointcut;
-		this.declaringClass = aspectJAdviceMethod.getDeclaringClass();
-		this.methodName = aspectJAdviceMethod.getName();
-		this.parameterTypes = aspectJAdviceMethod.getParameterTypes();
-		this.aspectJAdviceMethod = aspectJAdviceMethod;
-		this.aspectJAdvisorFactory = aspectJAdvisorFactory;
-		this.aspectInstanceFactory = aspectInstanceFactory;
-		this.declarationOrder = declarationOrder;
-		this.aspectName = aspectName;
-
+		this.declaredPointcut = declaredPointcut;//当前的切点表达式
+		this.declaringClass = aspectJAdviceMethod.getDeclaringClass();//切面的class对象
+		this.methodName = aspectJAdviceMethod.getName();//切面方法的名称
+		this.parameterTypes = aspectJAdviceMethod.getParameterTypes();//切面方法的参数类型
+		this.aspectJAdviceMethod = aspectJAdviceMethod;//切面方法对象
+		this.aspectJAdvisorFactory = aspectJAdvisorFactory;//aspectj的通知工厂
+		this.aspectInstanceFactory = aspectInstanceFactory;//aspect的实例工厂
+		this.declarationOrder = declarationOrder;//切面的顺序
+		this.aspectName = aspectName;//切面的名称
+		//判断当前的切面对象是否需要延时加载
 		if (aspectInstanceFactory.getAspectMetadata().isLazilyInstantiated()) {
 			// Static part of the pointcut is a lazy type.
 			Pointcut preInstantiationPointcut = Pointcuts.union(
@@ -110,7 +110,7 @@ final class InstantiationModelAwarePointcutAdvisorImpl
 			// A singleton aspect.
 			this.pointcut = this.declaredPointcut;
 			this.lazy = false;
-			this.instantiatedAdvice = instantiateAdvice(this.declaredPointcut);
+			this.instantiatedAdvice = instantiateAdvice(this.declaredPointcut);//将切面中的通知构造为advice通知对象    点进去。
 		}
 	}
 
@@ -144,9 +144,9 @@ final class InstantiationModelAwarePointcutAdvisorImpl
 		}
 		return this.instantiatedAdvice;
 	}
-
+	/** 将切面中的通知构造为advice通知对象  */
 	private Advice instantiateAdvice(AspectJExpressionPointcut pointcut) {
-		Advice advice = this.aspectJAdvisorFactory.getAdvice(this.aspectJAdviceMethod, pointcut,
+		Advice advice = this.aspectJAdvisorFactory.getAdvice(this.aspectJAdviceMethod, pointcut,  //点进去
 				this.aspectInstanceFactory, this.declarationOrder, this.aspectName);
 		return (advice != null ? advice : EMPTY_ADVICE);
 	}

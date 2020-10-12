@@ -48,7 +48,8 @@ import org.springframework.util.Assert;
  */
 @SuppressWarnings("serial")
 public class AnnotationAwareAspectJAutoProxyCreator extends AspectJAwareAdvisorAutoProxyCreator {
-
+//	首先AnnotationAwareAspectJAutoProxyCreator继承了AbstractAutoProxyCreator实现了BeanFactoryAware接口：
+//	　　所以在创建AnnotationAwareAspectJAutoProxyCreatorBean的过程中初始化方法里面会调用setBeanFactory方法：
 	@Nullable
 	private List<Pattern> includePatterns;
 
@@ -89,12 +90,12 @@ public class AnnotationAwareAspectJAutoProxyCreator extends AspectJAwareAdvisorA
 	@Override
 	protected List<Advisor> findCandidateAdvisors() {
 		// Add all the Spring advisors found according to superclass rules.
-		List<Advisor> advisors = super.findCandidateAdvisors();
+		List<Advisor> advisors = super.findCandidateAdvisors();//找出事务相关的advisor
 		// Build Advisors for all AspectJ aspects in the bean factory.
-		if (this.aspectJAdvisorsBuilder != null) {
+		if (this.aspectJAdvisorsBuilder != null) {//找出Aspect相关的信息之后封装为一个advisor
 			advisors.addAll(this.aspectJAdvisorsBuilder.buildAspectJAdvisors());
 		}
-		return advisors;
+		return advisors;//返回我们所有的通知
 	}
 
 	@Override

@@ -119,10 +119,10 @@ import java.lang.annotation.Target;
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
-@Import(AspectJAutoProxyRegistrar.class)
+@Import(AspectJAutoProxyRegistrar.class)  //此时看到了我们非常熟悉的@Import注解，
 public @interface EnableAspectJAutoProxy {
 
-	/**
+	/** 指示是否创建基于子类（CGLIB）的代理，而不是标准的基于Java接口的代理。默认值是{@code false}。
 	 * Indicate whether subclass-based (CGLIB) proxies are to be created as opposed
 	 * to standard Java interface-based proxies. The default is {@code false}.
 	 */
